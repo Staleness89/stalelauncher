@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<staleLauncher>
+  <Server>
+    <Files Root="C:\WoW\Server (3.3.5)\Core" />
+    <Files Worldexe="worldserver" />
+    <Files Authexe="authserver" />
+  </Server>
+  
+  <!--' IF YOU DO NOT WISH TO USE THE CLIENT FUNCTIONS YOU MAY LEAVE THE FOLLOWING EMPTY '-->
+  
+  <Client>
+    <Exe Path="" />
+    <Exe Locale="" />
+  </Client>
+</staleLauncher>
