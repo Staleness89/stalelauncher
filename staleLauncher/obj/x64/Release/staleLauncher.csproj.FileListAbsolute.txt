@@ -1,0 +1,77 @@
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.pdb
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.exe
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.pdb
+C:\Users\stale\Desktop\stalelauncher\staleLauncher\bin\x64\Release\staleConfig.xml
+D:\Documents\stalelauncher\staleLauncher\bin\x64\Release\staleConfig.xml
+D:\Documents\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+D:\Documents\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe
+D:\Documents\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.pdb
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.csprojResolveAssemblyReference.cache
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.exe
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.pdb
+D:\Documents\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+C:\stalelauncher\staleLauncher\bin\x64\Release\staleConfig.xml
+C:\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+C:\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.exe
+C:\stalelauncher\staleLauncher\bin\x64\Release\staleLauncher.pdb
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.csprojResolveAssemblyReference.cache
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.exe
+C:\stalelauncher\staleLauncher\obj\x64\Release\staleLauncher.pdb
+C:\stalelauncher - Copy\staleLauncher\bin\x64\Release\staleConfig.xml
+C:\stalelauncher - Copy\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+C:\stalelauncher - Copy\staleLauncher\bin\x64\Release\staleLauncher.exe
+C:\stalelauncher - Copy\staleLauncher\bin\x64\Release\staleLauncher.pdb
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.csprojResolveAssemblyReference.cache
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.exe
+C:\stalelauncher - Copy\staleLauncher\obj\x64\Release\staleLauncher.pdb
+C:\stalelaunchermaster\staleLauncher\bin\x64\Release\staleConfig.xml
+C:\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+C:\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.exe
+C:\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.pdb
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.csprojResolveAssemblyReference.cache
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.exe
+C:\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.pdb
+D:\Trinitycore\stalelaunchermaster\staleLauncher\bin\x64\Release\staleConfig.xml
+D:\Trinitycore\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+D:\Trinitycore\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.exe
+D:\Trinitycore\stalelaunchermaster\staleLauncher\bin\x64\Release\staleLauncher.pdb
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.csprojResolveAssemblyReference.cache
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.exe
+D:\Trinitycore\stalelaunchermaster\staleLauncher\obj\x64\Release\staleLauncher.pdb
+D:\Trinitycore\stalelauncherplussql\staleLauncher\bin\x64\Release\staleConfig.xml
+D:\Trinitycore\stalelauncherplussql\staleLauncher\bin\x64\Release\staleLauncher.exe.config
+D:\Trinitycore\stalelauncherplussql\staleLauncher\bin\x64\Release\staleLauncher.exe
+D:\Trinitycore\stalelauncherplussql\staleLauncher\bin\x64\Release\staleLauncher.pdb
+D:\Trinitycore\stalelauncherplussql\staleLauncher\bin\x64\Release\MySql.Data.dll
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.About.resources
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.ServerControl.resources
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.Properties.Resources.resources
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\sqlTools.SqlAccountForm.resources
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\sqlTools.SqlConnectForm.resources
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.csproj.GenerateResource.Cache
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.exe
+D:\Trinitycore\stalelauncherplussql\staleLauncher\obj\x64\Release\staleLauncher.pdb
