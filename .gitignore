@@ -1,4 +1,9 @@
-.vs/
-bin/
-obj/
-packages/
+*.vs/
+*bin/
+*obj/
+*packages/
+
+*.su
+*.idb
+*.pdb
+*.exe
