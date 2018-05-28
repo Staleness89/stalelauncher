@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace staleLauncher
@@ -8,6 +9,14 @@ namespace staleLauncher
         [STAThread]
         static void Main()
         {
+
+            Process[] staleProcessGet = Process.GetProcessesByName("stalelauncher");
+
+            if (staleProcessGet.Length > 1)
+            {
+                MessageBox.Show("staleLauncher already running.", "Error");
+                return;
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

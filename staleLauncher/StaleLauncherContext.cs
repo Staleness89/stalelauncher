@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
@@ -14,15 +13,16 @@ namespace staleLauncher
     {
         public static string clientEntryPath;
         public static string clientLocale;
+        public static string clientPathWarning;
         public static NotifyIcon _trayIcon;
-        public static Form _serverControl = null;
+        public static Form _serverControl;
         public static bool serverControlShowing = true;
 
         public StaleLauncherContext()
         {
             if (!ParseConfig("staleconfig.xml"))
             {
-                MessageBox.Show(@"Failed to load staleconfig.xml");
+                MessageBox.Show("Failed to load staleconfig.xml", "Error");
                 Application.Exit();
             }
 
@@ -111,16 +111,13 @@ namespace staleLauncher
 
         private void FocusServerControl(object Sender, EventArgs e)
         {
-            if (!serverControlShowing)
-                return;
-
-            _serverControl.Activate();
+            if (serverControlShowing)
+                _serverControl.Activate();
         }
 
         private void ClientClick(object sender, EventArgs e)
         {
-            if (clientEntryPath != string.Empty)
-                LaunchClient();
+            LaunchClient();
         }
 
         private void Exit(object sender, EventArgs e)
@@ -133,6 +130,12 @@ namespace staleLauncher
 
         public static void LaunchClient()
         {
+            if (!File.Exists(clientEntryPath + "\\" + "Wow.exe"))
+            {
+                MessageBox.Show("File does not exist.", "Error");
+                return;
+            }
+
             Process process;
             ProcessStartInfo _wowClient = new ProcessStartInfo();
 
@@ -170,7 +173,7 @@ namespace staleLauncher
                             {
                                 switch (e.Name.ToString().ToLower())
                                 {
-                                    case "files":
+                                    case "settings":
                                         foreach (var attr in e.Attributes())
                                         {
                                             switch (attr.Name.ToString().ToLower())
@@ -206,7 +209,7 @@ namespace staleLauncher
                             {
                                 switch (e.Name.ToString().ToLower())
                                 {
-                                    case "exe":
+                                    case "settings":
                                         foreach (var attr in e.Attributes())
                                         {
                                             switch (attr.Name.ToString().ToLower())
@@ -216,6 +219,9 @@ namespace staleLauncher
                                                     break;
                                                 case "locale":
                                                     clientLocale = attr.Value;
+                                                    break;
+                                                case "empty_path_warning":
+                                                    clientPathWarning = attr.Value;
                                                     break;
                                                 default:
                                                     return false;
@@ -228,8 +234,8 @@ namespace staleLauncher
                                 }
                             }
 
-                            if (clientEntryPath == string.Empty)
-                                MessageBox.Show("Your client path is empty.", "Warning");
+                            if (clientEntryPath == string.Empty && clientPathWarning == "true")
+                                MessageBox.Show("Your client path is empty. Disable this warning in staleConfig.", "Warning");
 
                             break;
                         }

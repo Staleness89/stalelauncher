@@ -150,6 +150,7 @@
     <None Include="Resources\WoW.ico" />
     <None Include="Resources\greyscale.png" />
     <None Include="Resources\greyscale.ico" />
+    <None Include="Resources\parchment.jpg" />
     <Content Include="staleConfig.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>

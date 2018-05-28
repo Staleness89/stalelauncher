@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "staleLauncher", "staleLauncher\staleLauncher.csproj", "{F64E53FE-8FEF-40B7-85B7-B2DB367EF880}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "staleLauncher+sql", "staleLauncher\staleLauncher+sql.csproj", "{F64E53FE-8FEF-40B7-85B7-B2DB367EF880}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAE6B708-E781-42A3-A444-56800BD30873}
 	EndGlobalSection
 EndGlobal

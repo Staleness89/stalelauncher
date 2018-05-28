@@ -34,8 +34,8 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openClientFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openClientFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.dBErrorslogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serverlogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,11 +65,11 @@
             this.showInTaskbarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTrayIconToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sqlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.accountManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.sqlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.accountManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.launcherLog = new System.Windows.Forms.RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -77,10 +77,11 @@
             // authServer_toggleButton
             // 
             this.authServer_toggleButton.BackColor = System.Drawing.Color.SteelBlue;
+            this.authServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.authServer_toggleButton.Image = ((System.Drawing.Image)(resources.GetObject("authServer_toggleButton.Image")));
-            this.authServer_toggleButton.Location = new System.Drawing.Point(1, 94);
+            this.authServer_toggleButton.Location = new System.Drawing.Point(-1, 83);
             this.authServer_toggleButton.Name = "authServer_toggleButton";
-            this.authServer_toggleButton.Size = new System.Drawing.Size(63, 58);
+            this.authServer_toggleButton.Size = new System.Drawing.Size(62, 58);
             this.authServer_toggleButton.TabIndex = 0;
             this.authServer_toggleButton.UseVisualStyleBackColor = false;
             this.authServer_toggleButton.Click += new System.EventHandler(this.ToggleAuthServer);
@@ -89,28 +90,29 @@
             // 
             this.worldServer_toggleButton.BackColor = System.Drawing.Color.Red;
             this.worldServer_toggleButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.worldServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.worldServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.worldServer_toggleButton.Image = ((System.Drawing.Image)(resources.GetObject("worldServer_toggleButton.Image")));
-            this.worldServer_toggleButton.Location = new System.Drawing.Point(0, 31);
+            this.worldServer_toggleButton.Location = new System.Drawing.Point(-1, 28);
             this.worldServer_toggleButton.Name = "worldServer_toggleButton";
-            this.worldServer_toggleButton.Size = new System.Drawing.Size(64, 57);
+            this.worldServer_toggleButton.Size = new System.Drawing.Size(63, 58);
             this.worldServer_toggleButton.TabIndex = 1;
             this.worldServer_toggleButton.UseVisualStyleBackColor = false;
             this.worldServer_toggleButton.Click += new System.EventHandler(this.ToggleWorldServer);
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.Window;
             this.menuStrip1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.optionsToolStripMenuItem,
-            this.helpToolStripMenuItem,
-            this.sqlToolStripMenuItem});
+            this.sqlToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(337, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(307, 25);
             this.menuStrip1.TabIndex = 5;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -123,28 +125,21 @@
             this.launchClientToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(42, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(42, 21);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openClientFolderToolStripMenuItem,
             this.serverToolStripMenuItem,
+            this.openClientFolderToolStripMenuItem,
             this.toolStripMenuItem2,
             this.dBErrorslogToolStripMenuItem,
             this.serverlogToolStripMenuItem,
             this.authlogToolStripMenuItem});
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(149, 26);
             this.openFolderToolStripMenuItem.Text = "Open...";
-            // 
-            // openClientFolderToolStripMenuItem
-            // 
-            this.openClientFolderToolStripMenuItem.Name = "openClientFolderToolStripMenuItem";
-            this.openClientFolderToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
-            this.openClientFolderToolStripMenuItem.Text = "Client Folder";
-            this.openClientFolderToolStripMenuItem.Click += new System.EventHandler(this.openClientFolderToolStripMenuItem_Click);
             // 
             // serverToolStripMenuItem
             // 
@@ -152,6 +147,13 @@
             this.serverToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
             this.serverToolStripMenuItem.Text = "Server Folder";
             this.serverToolStripMenuItem.Click += new System.EventHandler(this.serverToolStripMenuItem_Click);
+            // 
+            // openClientFolderToolStripMenuItem
+            // 
+            this.openClientFolderToolStripMenuItem.Name = "openClientFolderToolStripMenuItem";
+            this.openClientFolderToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
+            this.openClientFolderToolStripMenuItem.Text = "Client Folder";
+            this.openClientFolderToolStripMenuItem.Click += new System.EventHandler(this.openClientFolderToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -186,7 +188,7 @@
             this.authserverconfToolStripMenuItem,
             this.realmlistwtfToolStripMenuItem});
             this.editConfigsToolStripMenuItem.Name = "editConfigsToolStripMenuItem";
-            this.editConfigsToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
+            this.editConfigsToolStripMenuItem.Size = new System.Drawing.Size(149, 26);
             this.editConfigsToolStripMenuItem.Text = "Edit...";
             // 
             // worldserverconfToolStripMenuItem
@@ -213,19 +215,19 @@
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(147, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(146, 6);
             // 
             // launchClientToolStripMenuItem
             // 
             this.launchClientToolStripMenuItem.Name = "launchClientToolStripMenuItem";
-            this.launchClientToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
-            this.launchClientToolStripMenuItem.Text = "Start WoW";
+            this.launchClientToolStripMenuItem.Size = new System.Drawing.Size(149, 26);
+            this.launchClientToolStripMenuItem.Text = "Start client";
             this.launchClientToolStripMenuItem.Click += new System.EventHandler(this.launchClientToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(149, 26);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.Exit);
             // 
@@ -236,7 +238,7 @@
             this.clientToolStripMenuItem,
             this.toolStripMenuItem3});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(69, 24);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(69, 21);
             this.optionsToolStripMenuItem.Text = "&Options";
             // 
             // serverToolStripMenuItem1
@@ -383,13 +385,28 @@
             this.clearLogToolStripMenuItem.ToolTipText = "Clears the log in the launcher window.";
             this.clearLogToolStripMenuItem.Click += new System.EventHandler(this.clearLogToolStripMenuItem_Click);
             // 
+            // sqlToolStripMenuItem
+            // 
+            this.sqlToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.accountManagerToolStripMenuItem});
+            this.sqlToolStripMenuItem.Name = "sqlToolStripMenuItem";
+            this.sqlToolStripMenuItem.Size = new System.Drawing.Size(40, 21);
+            this.sqlToolStripMenuItem.Text = "Sql";
+            // 
+            // accountManagerToolStripMenuItem
+            // 
+            this.accountManagerToolStripMenuItem.Name = "accountManagerToolStripMenuItem";
+            this.accountManagerToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+            this.accountManagerToolStripMenuItem.Text = "Account Manager";
+            this.accountManagerToolStripMenuItem.Click += new System.EventHandler(this.accountManagerToolStripMenuItem_Click);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSeparator5,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(49, 24);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(49, 21);
             this.helpToolStripMenuItem.Text = "&Help";
             // 
             // toolStripSeparator5
@@ -404,51 +421,37 @@
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // sqlToolStripMenuItem
-            // 
-            this.sqlToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.accountManagerToolStripMenuItem});
-            this.sqlToolStripMenuItem.Name = "sqlToolStripMenuItem";
-            this.sqlToolStripMenuItem.Size = new System.Drawing.Size(40, 24);
-            this.sqlToolStripMenuItem.Text = "Sql";
-            // 
-            // accountManagerToolStripMenuItem
-            // 
-            this.accountManagerToolStripMenuItem.Name = "accountManagerToolStripMenuItem";
-            this.accountManagerToolStripMenuItem.Size = new System.Drawing.Size(204, 26);
-            this.accountManagerToolStripMenuItem.Text = "Account Manager";
-            this.accountManagerToolStripMenuItem.Click += new System.EventHandler(this.accountManagerToolStripMenuItem_Click);
-            // 
             // launcherLog
             // 
             this.launcherLog.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.launcherLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.launcherLog.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.8F);
             this.launcherLog.HideSelection = false;
-            this.launcherLog.Location = new System.Drawing.Point(70, 32);
+            this.launcherLog.Location = new System.Drawing.Point(68, 33);
             this.launcherLog.Name = "launcherLog";
             this.launcherLog.ReadOnly = true;
-            this.launcherLog.Size = new System.Drawing.Size(267, 120);
+            this.launcherLog.Size = new System.Drawing.Size(239, 108);
             this.launcherLog.TabIndex = 6;
             this.launcherLog.Text = "";
             // 
             // ServerControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(337, 153);
+            this.ClientSize = new System.Drawing.Size(307, 143);
             this.Controls.Add(this.launcherLog);
             this.Controls.Add(this.worldServer_toggleButton);
             this.Controls.Add(this.authServer_toggleButton);
             this.Controls.Add(this.menuStrip1);
             this.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(355, 200);
-            this.MinimumSize = new System.Drawing.Size(355, 200);
+            this.MaximumSize = new System.Drawing.Size(325, 190);
+            this.MinimumSize = new System.Drawing.Size(325, 190);
             this.Name = "ServerControl";
             this.Text = "staleLauncher";
             this.menuStrip1.ResumeLayout(false);

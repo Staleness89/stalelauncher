@@ -9,6 +9,14 @@ namespace staleLauncher
 {
     public partial class ServerControl : Form
     {
+        public const int WM_NCLBUTTONDOWN = 0xA1;
+        public const int HT_CAPTION = 0x2;
+
+        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
+        public static extern bool ReleaseCapture();
+
         public static string serverPath;
         public static string worldExe;
         public static string authExe;
@@ -27,6 +35,15 @@ namespace staleLauncher
         SqlConnectForm sqlConnectForm;
 
 
+        public void CommandForm_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+            }
+        }
+
         public ServerControl()
         {
             InitializeComponent();
@@ -44,6 +61,7 @@ namespace staleLauncher
 
             FormClosing += new FormClosingEventHandler(OnFormExit);
             Activated += new EventHandler(servercontrol_Focus);
+            MouseDown += new MouseEventHandler(CommandForm_MouseDown);
         }
 
         public void UpdateServerButtons()
@@ -76,35 +94,14 @@ namespace staleLauncher
 
         private void SyncCheckboxSettings()
         {
-            // @TODO: SIMPLIFY/CONDENSE
-
-            if (Settings.Default.hideProcesses)
-                ToggleHiddenProcesses(true);
-            else
-                ToggleHiddenProcesses(false);
-
-            if (Settings.Default.restartProcesses)
-                restartProcessesToolStripMenuItem.Checked = true;
-
-            if (Settings.Default.clearDBErrors)
-                clearDBErrorsToolStripMenuItem.Checked = true;
-
-            if (Settings.Default.deleteClientCache)
-                clearClientCacheToolStripMenuItem.Checked = true;
-
-            if (Settings.Default.showInTaskbar)
-            {
-                showInTaskbarToolStripMenuItem.Checked = true;
-                ShowInTaskbar = true;
-            }
-            else
-                ShowInTaskbar = false;
-
-            if (Settings.Default.showTrayIcon)
-            {
-                showTrayIconToolStripMenuItem.Checked = true;
-                MinimizeBox = false;
-            }
+            ToggleHiddenProcesses(Settings.Default.hideProcesses);
+            restartProcessesToolStripMenuItem.Checked = Settings.Default.restartProcesses;
+            clearDBErrorsToolStripMenuItem.Checked = Settings.Default.clearDBErrors;
+            clearClientCacheToolStripMenuItem.Checked = Settings.Default.deleteClientCache;
+            showInTaskbarToolStripMenuItem.Checked = Settings.Default.showInTaskbar;
+            ShowInTaskbar = Settings.Default.showInTaskbar;
+            showTrayIconToolStripMenuItem.Checked = Settings.Default.showTrayIcon;
+            MinimizeBox = !Settings.Default.showTrayIcon;
 
             switch (Settings.Default.iconString)
             {
@@ -138,13 +135,7 @@ namespace staleLauncher
         private void worldProcessExit(Object sender, EventArgs e)
         {
             Process[] worldProcessGet = Process.GetProcessesByName(worldExe);
-
-            foreach (var process in worldProcessGet)
-            {
-                process.Kill();
-                process.Close();
-            }
-
+            
             if (worldProcessGet.Length == 0)
                 worldServer_toggleButton.Image = Resources.greyscale.ToBitmap();
 
@@ -167,12 +158,6 @@ namespace staleLauncher
         private void authProcessExit(Object sender, EventArgs e)
         {
             Process[] authProcessGet = Process.GetProcessesByName(authExe);
-
-            foreach (var process in authProcessGet)
-            {
-                process.Kill();
-                process.Close();
-            }
 
             if (authProcessGet.Length == 0)
                 authServer_toggleButton.Image = Resources.greyscale.ToBitmap();
@@ -216,12 +201,8 @@ namespace staleLauncher
             else
             {
                 intentionedStop_worldServer = true;
-
-                foreach (var process in worldProcessGet)
-                {
-                    process.Kill();
-                    process.Close();
-                }
+                worldProcessGet[0].Kill();
+                worldProcessGet[0].Dispose();
             }
         }
 
@@ -240,18 +221,14 @@ namespace staleLauncher
             else
             {
                 intentionedStop_authServer = true;
-
-                foreach (var process in authProcessGet)
-                {
-                    process.Kill();
-                    process.Close();
-                }
+                authProcessGet[0].Kill();
+                authProcessGet[0].Dispose();
             }
         }
 
         public void StartServerExe(ProcessStartInfo serverExe)
         {
-            if (serverExe == _worldServer || serverExe == _authServer)
+            if (File.Exists(serverExe.FileName))
             {
                 Process server = Process.Start(serverExe);
                 server.EnableRaisingEvents = true;
@@ -275,246 +252,159 @@ namespace staleLauncher
 
         private void ToggleHiddenProcesses(bool enabled)
         {
+            Settings.Default.hideProcesses = enabled;
+            hideProcessesToolStripMenuItem.Checked = enabled;
+
             if (enabled)
             {
                 _worldServer.WindowStyle = ProcessWindowStyle.Hidden;
                 _authServer.WindowStyle = ProcessWindowStyle.Hidden;
-                Settings.Default.hideProcesses = true;
-                hideProcessesToolStripMenuItem.Checked = true;
             }
-            else if (!enabled)
+            else
             {
                 _worldServer.WindowStyle = ProcessWindowStyle.Normal;
                 _authServer.WindowStyle = ProcessWindowStyle.Normal;
-                Settings.Default.hideProcesses = false;
-                hideProcessesToolStripMenuItem.Checked = false;
             }
         }
 
         private void ToggleClearDBErrors(bool enabled)
         {
-            if (enabled)
-                Settings.Default.clearDBErrors = true;
-            else if (!enabled)
-                Settings.Default.clearDBErrors = false;
+            Settings.Default.clearDBErrors = enabled;
         }
 
         private void ToggleDeleteClientCache(bool enabled)
         {
-            if (enabled)
-                Settings.Default.deleteClientCache = true;
-            else if (!enabled)
-                Settings.Default.deleteClientCache = false;
+            Settings.Default.deleteClientCache = enabled;
         }
 
         private void ToggleShowInTaskbar(bool enabled)
         {
-            if (enabled)
-            {
-                Settings.Default.showInTaskbar = true;
-                ShowInTaskbar = true;
-            }
-            else if (!enabled)
-            {
-                ShowInTaskbar = false;
-                Settings.Default.showInTaskbar = false;
-            }
+            Settings.Default.showInTaskbar = enabled;
+            ShowInTaskbar = enabled;
         }
-
-
+        
         private void ToggleShowTrayIcon(bool enabled)
         {
+            Settings.Default.showTrayIcon = enabled;
+            StaleLauncherContext._trayIcon.Visible = enabled;
+            MinimizeBox = !enabled;
             if (enabled)
-            {
-                Settings.Default.showTrayIcon = true;
-                StaleLauncherContext._trayIcon.Visible = true;
                 StaleLauncherContext._serverControl.FormClosed -= new FormClosedEventHandler(Exit);
-                MinimizeBox = false;
-            }
-            else if (!enabled)
-            {
-                Settings.Default.showTrayIcon = false;
-                StaleLauncherContext._trayIcon.Visible = false;
+            else
                 StaleLauncherContext._serverControl.FormClosed += new FormClosedEventHandler(Exit);
-                MinimizeBox = true;
-            }
         }
-        //    TASKBAR CLICK EVENTS
 
-        private void openClientFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenDirectory(string path)
         {
-            if (Directory.Exists(StaleLauncherContext.clientEntryPath))
-                Process.Start(StaleLauncherContext.clientEntryPath);
+            if (Directory.Exists(path))
+                Process.Start(path);
             else
             {
                 MessageBox.Show("Folder does not exist.", "Error");
                 System.Media.SystemSounds.Exclamation.Play();
             }
+        }
+
+        private void OpenFile(string path)
+        {
+            if (File.Exists(path))
+                Process.Start(path);
+            else
+            {
+                MessageBox.Show("File does not exist.", "Error");
+                System.Media.SystemSounds.Exclamation.Play();
+            }
+        }
+
+        //    TASKBAR CLICK EVENTS
+        private void openClientFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenDirectory(StaleLauncherContext.clientEntryPath);
         }
 
         private void serverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Directory.Exists(serverPath))
-                Process.Start(serverPath);
-            else
-            {
-                MessageBox.Show("Folder does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenDirectory(serverPath);
         }
 
         private void dBErrorslogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(serverPath + "\\" + "DBErrors.log"))
-                Process.Start(serverPath + "\\" + "DBErrors.log");
-            else
-            {
-                MessageBox.Show("Log does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenFile(serverPath + "\\" + "DBErrors.log");
         }
 
         private void serverlogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(serverPath + "\\" + "Server.log"))
-                Process.Start(serverPath + "\\" + "Server.log");
-            else
-            {
-                MessageBox.Show("Log does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenFile(serverPath + "\\" + "Server.log");
         }
 
         private void authlogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(serverPath + "\\" + "Auth.log"))
-                Process.Start(serverPath + "\\" + "Auth.log");
-            else
-            {
-                MessageBox.Show("Log does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenFile(serverPath + "\\" + "Auth.log");
         }
 
         private void worldserverconfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(serverPath + "\\" + "worldserver.conf"))
-                Process.Start(serverPath + "\\" + "worldserver.conf");
-            else
-            {
-                MessageBox.Show("File does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenFile(serverPath + "\\" + "worldserver.conf");
         }
 
         private void authserverconfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(serverPath + "\\" + "authserver.conf"))
-                Process.Start(serverPath + "\\" + "authserver.conf");
-            else
-            {
-                MessageBox.Show("File does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
+            OpenFile(serverPath + "\\" + "authserver.conf");
         }
-
 
         private void staleconfigxmlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists("staleconfig.xml"))
-                Process.Start(serverPath + "\\" + "staleconfig.xml");
-            else
-            {
-                System.Media.SystemSounds.Exclamation.Play();
-                MessageBox.Show("File does not exist.");
-            }
-
+            OpenFile(serverPath + "\\" + "staleconfig.xml");
         }
 
         private void realmlistwtfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var realmlistPath = StaleLauncherContext.clientEntryPath + "\\Data\\" + StaleLauncherContext.clientLocale + "\\" + "realmlist.wtf";
-
-            if (File.Exists(realmlistPath))
-                Process.Start(realmlistPath);
-            else
-            {
-                System.Media.SystemSounds.Exclamation.Play();
-                MessageBox.Show("File does not exist.", "Error");
-            }
+            OpenFile(StaleLauncherContext.clientEntryPath + "\\Data\\" + StaleLauncherContext.clientLocale + "\\" + "realmlist.wtf");
         }
 
         //    FILESTRIP "OPTIONS" TOGGLES
         //  1: Server
-
         private void hideProcessesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (hideProcessesToolStripMenuItem.Checked)
-                ToggleHiddenProcesses(true);
-            else
-                ToggleHiddenProcesses(false);
+            ToggleHiddenProcesses(hideProcessesToolStripMenuItem.Checked);
         }
 
         private void restartProcessesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (restartProcessesToolStripMenuItem.Checked)
-                Settings.Default.restartProcesses = true;
-            else
-                Settings.Default.restartProcesses = false;
-
+            Settings.Default.restartProcesses = restartProcessesToolStripMenuItem.Checked;
         }
 
         private void clearDBErrorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (clearDBErrorsToolStripMenuItem.Checked)
-                ToggleClearDBErrors(true);
-            else
-                ToggleClearDBErrors(false);
+            ToggleClearDBErrors(clearDBErrorsToolStripMenuItem.Checked);
         }
 
         //  2: Client
-
         private void clearClientCacheToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (clearClientCacheToolStripMenuItem.Checked)
-                ToggleDeleteClientCache(true);
-            else
-                ToggleDeleteClientCache(false);
+            ToggleDeleteClientCache(clearClientCacheToolStripMenuItem.Checked);
         }
 
         //  3: Launcher
-
         private void showInTaskbarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (showInTaskbarToolStripMenuItem.Checked)
-                ToggleShowInTaskbar(true);
-            else
-            {
-                if (!showTrayIconToolStripMenuItem.Checked)
-                {
-                    ToggleShowTrayIcon(true);
-                    showTrayIconToolStripMenuItem.Checked = true;
-                }
+            ToggleShowInTaskbar(showInTaskbarToolStripMenuItem.Checked);
 
-                ToggleShowInTaskbar(false);
+            if (!showTrayIconToolStripMenuItem.Checked && !showInTaskbarToolStripMenuItem.Checked)
+            {
+                ToggleShowTrayIcon(true);
+                showTrayIconToolStripMenuItem.Checked = true;
             }
         }
 
         private void showTrayIconToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (showTrayIconToolStripMenuItem.Checked)
-            {
-                ToggleShowTrayIcon(true);
-            }
-            else
-            {
-                if (!showInTaskbarToolStripMenuItem.Checked)
-                {
-                    ToggleShowInTaskbar(true);
-                    showInTaskbarToolStripMenuItem.Checked = true;
-                }
+            ToggleShowTrayIcon(showTrayIconToolStripMenuItem.Checked);
 
-                ToggleShowTrayIcon(false);
+            if (!showInTaskbarToolStripMenuItem.Checked && !showTrayIconToolStripMenuItem.Checked)
+            {
+                ToggleShowInTaskbar(true);
+                showInTaskbarToolStripMenuItem.Checked = true;
             }
         }
 
@@ -665,7 +555,7 @@ namespace staleLauncher
             else
             {
                 System.Media.SystemSounds.Exclamation.Play();
-                MessageBox.Show("An SQL process is open.", "Error");
+                MessageBox.Show("A DB manager is open.", "Error");
             }
         }
 
@@ -673,8 +563,6 @@ namespace staleLauncher
         {
             if (sqlProcess != null)
                 sqlProcess.Activate();
-
-            Debug.WriteLine("fokinell");
         }
     }
 }

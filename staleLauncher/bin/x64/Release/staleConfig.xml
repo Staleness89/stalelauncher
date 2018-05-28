@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <staleLauncher>
   <Server>
-    <Files Root="C:\WoW\Server (3.3.5)\Core" />
-    <Files Worldexe="worldserver" />
-    <Files Authexe="authserver" />
+    <Settings Root="C:\WoW\Server (3.3.5)\Core" />
+    <Settings Worldexe="worldserver" />
+    <Settings Authexe="authserver" />
   </Server>
   
-  <!--' IF YOU DO NOT WISH TO USE THE CLIENT FUNCTIONS YOU MAY LEAVE THE FOLLOWING EMPTY '-->
-  
   <Client>
-    <Exe Path="" />
-    <Exe Locale="" />
+    <Settings Path   = " " />                <!--'Path to your server executables' -->
+    <Settings Locale = "enUS" />             <!--'Your countrys locale'-->
+    <Settings Empty_Path_Warning = "true" /> <!--'Disable the empty path warning here'-->
   </Client>
 </staleLauncher>
