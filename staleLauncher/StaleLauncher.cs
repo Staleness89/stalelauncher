@@ -170,6 +170,9 @@ namespace staleLauncher
                                                 case "sql_service":
                                                     ServerControl.mySqlServiceName = attr.Value;
                                                     break;
+                                                case "sql_exe":
+                                                    ServerControl.mySqlExe = attr.Value;
+                                                    break;
                                                 case "allow_multiple":
                                                     allowMultipleLaunchers = attr.Value;
                                                     break;

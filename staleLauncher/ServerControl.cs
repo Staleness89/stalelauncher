@@ -6,6 +6,7 @@ using staleLauncher.Properties;
 using sqlTools;
 using System.ComponentModel;
 using System.ServiceProcess;
+using Microsoft.SqlServer;
 
 namespace staleLauncher
 {
@@ -20,10 +21,11 @@ namespace staleLauncher
         public static string serverPath, worldExe, authExe, bnetExe;
 
         public static bool intentionedStop = false;
-
+        
         SqlConnectForm sqlConnectForm;
-        ServiceController mySqlController = new ServiceController();
+        public static ServiceController mySqlController = new ServiceController();
         public static string mySqlServiceName = "";
+        public static string mySqlExe = "mysqld";
         public static Form sqlProcess = null;
         About aboutPage = null;
 
@@ -212,7 +214,7 @@ namespace staleLauncher
                 bnetServer_toggleButton.Image = Resources.authserver.ToBitmap();
                 bnetServer_toggleButton.BackColor = System.Drawing.Color.DodgerBlue;
             }
-            if (mySqlController.Status == ServiceControllerStatus.Stopped)
+            if (GetServerProcess(mySqlExe) == null)
             {
                 MySql_ToggleButton.BackColor = System.Drawing.Color.Silver;
                 MySql_ToggleButton.Image = Resources.mysql_white.ToBitmap();
@@ -244,7 +246,6 @@ namespace staleLauncher
         {
             if (Process.GetProcessesByName(processExe).Length > 1)
                 MessageBox.Show("There are more than one " + processExe + " processes running.", "Warning");
-
             if (Process.GetProcessesByName(processExe).Length > 0) // remember length is NOT 0 based
                 return Process.GetProcessesByName(processExe)[0];
             else return null;
@@ -271,33 +272,41 @@ namespace staleLauncher
                 if (authServer == null)
                     StartServerExe(authServerStartInfo);
                 else
-                {
                     authServer.Kill();
-                }
             }
             else if (sender == bnetServer_toggleButton)
             {
                 if (bnetServer == null)
                     StartServerExe(bnetServerStartInfo);
                 else
-                {
                     bnetServer.Kill();
-                }
             }
             else if (sender == MySql_ToggleButton)
+                ToggleSqlServer();
+            UpdateServerButtons();
+        }
+
+        public void ToggleSqlServer()
+        {
+            try
             {
-                if (mySqlController.Status == ServiceControllerStatus.Running)
+                if (GetServerProcess(mySqlExe) != null)
                 {
                     mySqlController.Stop();
                     mySqlController.WaitForStatus(ServiceControllerStatus.Stopped);
+                    launcherLogInsert(mySqlServiceName + " stopped.", eventLogTextBox);
                 }
                 else
                 {
                     mySqlController.Start();
                     mySqlController.WaitForStatus(ServiceControllerStatus.Running);
+                    launcherLogInsert(mySqlServiceName + " started.", eventLogTextBox);
                 }
             }
-            UpdateServerButtons();
+            catch
+            {
+                MessageBox.Show("Error starting/stopping SQL service. Try running as administrator.", "Error");
+            }
         }
 
         public void StartServerExe(ProcessStartInfo serverStartInfo)
