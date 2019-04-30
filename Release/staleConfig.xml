@@ -1,17 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <staleLauncher>
   <Server>
-    <Settings server_path="D:\World of Warcraft (3.3.5)\$server\Core" /> <!--'Path to your server executables' -->
+    <Settings server_path="D:\World of Warcraft (4.3.4)\$server\Core" /> <!--'Path to your server executables' -->
     <Settings world_exe="Worldserver" /> <!--'Filename of your worldserver executable' -->
     <Settings auth_exe="Authserver" /> <!--'Filename of your authserver executable' -->
+    <Settings bnet_exe="Bnetserver" /> <!--'Filename of your authserver executable' -->
     <Settings sql_service="MySQL" /> <!--'Name of your SQL windows service' -->
     <Settings allow_multiple="true" /> <!--'Allow multiple instances of this launcher' -->
   </Server>
   
   <Client>
-    <Settings client_path="D:\World of Warcraft (3.3.5)" /> <!--'Path to your WoW client' -->
-    <Settings client_exe="" /> <!--'Filename of your WoW client executable' -->
-    <Settings client_locale = "enUS" />  <!--'Your countrys locale'-->
+    <Settings client_path="D:\World of Warcraft (4.3.4)" /> <!--'Path to your WoW client' -->
+    <Settings client_exe="WoW" /> <!--'Filename of your WoW client executable' -->
+    <Settings client_locale = "enGB" />  <!--'Your countrys locale'-->
     <Settings empty_path_warning = "true" /> <!--'Disable the empty path warning here (true or false)'-->
   </Client>
 </staleLauncher>

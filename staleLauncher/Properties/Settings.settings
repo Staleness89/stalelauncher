@@ -15,7 +15,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="iconString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">worldserver</Value>
+      <Value Profile="(Default)">WoW4</Value>
     </Setting>
     <Setting Name="restartProcesses" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

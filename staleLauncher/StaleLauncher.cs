@@ -56,11 +56,11 @@ namespace staleLauncher
 
             _trayIcon = new NotifyIcon {
                 ContextMenu = new ContextMenu(menuItems.ToArray()),
-                Text = "staleLauncher",  Visible = Properties.Settings.Default.showTrayIcon,  Icon = GetPreferredTrayIcon() };
+                Text = "staleLauncher",  Visible = Properties.Settings.Default.showTrayIcon,  Icon = GetPreferredIcon() };
             _trayIcon.Click += new System.EventHandler(ToggleServerControl);
         }
 
-        public static Icon GetPreferredTrayIcon()
+        public static Icon GetPreferredIcon()
         {
             switch (Properties.Settings.Default.iconString)
             {
@@ -68,13 +68,13 @@ namespace staleLauncher
                     return Resources.worldserver;
                 case "authserver":
                     return Resources.authserver;
-                case "wow1":
+                case "WoW1":
                     return Resources.WoW;
-                case "wow2":
+                case "WoW2":
                     return Resources.WoW2;
-                case "wow3":
+                case "WoW3":
                     return Resources.WoW3;
-                case "wow4":
+                case "WoW4":
                     return Resources.WoW4;
                 default:
                     return Resources.worldserver;
@@ -121,7 +121,10 @@ namespace staleLauncher
             if (processes.Length == 0)
             {
                 if (Properties.Settings.Default.deleteClientCache && Directory.Exists(clientPath + "\\" + "cache"))
+                {
                     Directory.Delete(clientPath + "\\" + "cache", true);
+                    Directory.Delete(clientPath + "\\" + clientLocale + "\\" + "cache", true);
+                }                    
 
                 process = Process.Start(_wowClient);
             }
@@ -160,6 +163,9 @@ namespace staleLauncher
                                                     break;
                                                 case "auth_exe":
                                                     ServerControl.authExe = attr.Value;
+                                                    break;
+                                                case "bnet_exe":
+                                                    ServerControl.bnetExe = attr.Value;
                                                     break;
                                                 case "sql_service":
                                                     ServerControl.mySqlServiceName = attr.Value;

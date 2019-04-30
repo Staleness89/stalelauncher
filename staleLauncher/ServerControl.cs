@@ -17,7 +17,7 @@ namespace staleLauncher
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
 
-        public static string serverPath, worldExe, authExe;
+        public static string serverPath, worldExe, authExe, bnetExe;
 
         public static bool intentionedStop = false;
 
@@ -28,9 +28,11 @@ namespace staleLauncher
         About aboutPage = null;
 
         public static ProcessStartInfo worldServerStartInfo = new ProcessStartInfo();
+        public static ProcessStartInfo bnetServerStartInfo = new ProcessStartInfo();
         public static ProcessStartInfo authServerStartInfo = new ProcessStartInfo();
         private static Process worldServer = null;
         private static Process authServer = null;
+        private static Process bnetServer = null;
 
 
         private BackgroundWorker worldConsoleOutputWorker = new BackgroundWorker();
@@ -54,9 +56,10 @@ namespace staleLauncher
         {
             InitializeComponent();
 
-            authServerStartInfo.WorkingDirectory = worldServerStartInfo.WorkingDirectory = serverPath;
+            authServerStartInfo.WorkingDirectory = worldServerStartInfo.WorkingDirectory = bnetServerStartInfo.WorkingDirectory = serverPath;
             authServerStartInfo.FileName = serverPath + "\\" + authExe + ".exe";
             worldServerStartInfo.FileName = serverPath + "\\" + worldExe + ".exe";
+            bnetServerStartInfo.FileName = serverPath + "\\" + bnetExe + ".exe";
             mySqlController.ServiceName = mySqlServiceName;
 
             if (string.IsNullOrEmpty(StaleLauncher.clientPath) || string.IsNullOrEmpty(StaleLauncher.clientLocale) || string.IsNullOrEmpty(StaleLauncher.clientExe))
@@ -81,12 +84,14 @@ namespace staleLauncher
 
 
             worldServer = GetServerProcess(worldExe);
-            if (worldServer != null) { worldServer.EnableRaisingEvents = true; worldServer.Exited += (worldServer, EventArgs) =>
+            if (worldServer != null && worldServer.StartInfo == worldServerStartInfo) { worldServer.EnableRaisingEvents = true; worldServer.Exited += (worldServer, EventArgs) =>
             { serverProcessExit(worldServer, EventArgs, worldExe); }; };
             authServer = GetServerProcess(authExe);
-            if (authServer != null) { authServer.EnableRaisingEvents = true; authServer.Exited += (authServer, EventArgs) =>
+            if (authServer != null && authServer.StartInfo == authServerStartInfo) { authServer.EnableRaisingEvents = true; authServer.Exited += (authServer, EventArgs) =>
             { serverProcessExit(authServer, EventArgs, authExe); }; };
-
+            bnetServer = GetServerProcess(bnetExe);
+            if (bnetServer != null) { bnetServer.EnableRaisingEvents = true; bnetServer.Exited += (bnetServer, EventArgs) =>
+                { serverProcessExit(bnetServer, EventArgs, bnetExe); }; };
             UpdateServerButtons();
             SyncCheckboxSettings();
         }
@@ -156,19 +161,19 @@ namespace staleLauncher
                     blueauthserverToolStripMenuItem.Checked = true;
                     Icon = Resources.authserver;
                     break;
-                case "wow1":
+                case "WoW1":
                     warcraft1ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW;
                     break;
-                case "wow2":
+                case "WoW2":
                     warcraft2ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW2;
                     break;
-                case "wow3":
+                case "WoW3":
                     warcraft3ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW3;
                     break;
-                case "wow4":
+                case "WoW4":
                     warcraft4ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW4;
                     break;
@@ -197,7 +202,16 @@ namespace staleLauncher
                 worldServer_toggleButton.Image = Resources.worldserver.ToBitmap();
                 worldServer_toggleButton.BackColor = System.Drawing.Color.Red;
             }
-
+            if (bnetServer == null)
+            {
+                bnetServer_toggleButton.BackColor = System.Drawing.Color.LightSteelBlue;
+                bnetServer_toggleButton.Image = Resources.greyscale.ToBitmap();
+            }
+            else
+            {
+                bnetServer_toggleButton.Image = Resources.authserver.ToBitmap();
+                bnetServer_toggleButton.BackColor = System.Drawing.Color.DodgerBlue;
+            }
             if (mySqlController.Status == ServiceControllerStatus.Stopped)
             {
                 MySql_ToggleButton.BackColor = System.Drawing.Color.Silver;
@@ -221,6 +235,7 @@ namespace staleLauncher
 
             if (processType == worldExe) worldServer = null;
             if (processType == authExe) authServer = null;
+            if (processType == bnetExe) bnetServer = null;
 
             UpdateServerButtons();
         }
@@ -258,6 +273,15 @@ namespace staleLauncher
                 else
                 {
                     authServer.Kill();
+                }
+            }
+            else if (sender == bnetServer_toggleButton)
+            {
+                if (bnetServer == null)
+                    StartServerExe(bnetServerStartInfo);
+                else
+                {
+                    bnetServer.Kill();
                 }
             }
             else if (sender == MySql_ToggleButton)
@@ -313,9 +337,7 @@ namespace staleLauncher
                         worldConsoleOutputWorker.RunWorkerAsync(worldServer.StandardOutput);
                         worldConsoleOutputErrorWorker.RunWorkerAsync(worldServer.StandardError);
                         worldStreamWriter = worldServer.StandardInput;
-                    }
-
-                    
+                    }                    
                 }
                 else if (serverStartInfo == authServerStartInfo)
                 {
@@ -323,6 +345,13 @@ namespace staleLauncher
                     launcherLogInsert(authExe + " started.", eventLogTextBox);
                     authServer.EnableRaisingEvents = true;
                     authServer.Exited += (authServer, EventArgs) => { serverProcessExit(authServer, EventArgs, authExe); };
+                }
+                else if (serverStartInfo == bnetServerStartInfo)
+                {
+                    bnetServer = Process.Start(serverStartInfo);
+                    launcherLogInsert(bnetExe + " started.", eventLogTextBox);
+                    bnetServer.EnableRaisingEvents = true;
+                    bnetServer.Exited += (bnetServer, EventArgs) => { serverProcessExit(bnetServer, EventArgs, bnetExe); };
                 }
             }
             else
@@ -430,8 +459,8 @@ namespace staleLauncher
             ((ToolStripMenuItem)sender).Checked = true;
 
             Settings.Default.iconString = sender.ToString();
-            Icon = StaleLauncher.GetPreferredTrayIcon();
-            StaleLauncher._trayIcon.Icon = StaleLauncher.GetPreferredTrayIcon();
+            Icon = StaleLauncher.GetPreferredIcon();
+            StaleLauncher._trayIcon.Icon = StaleLauncher.GetPreferredIcon();
         }
 
         //    MISC FILESTRIP CLICK EVENTS        

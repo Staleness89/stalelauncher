@@ -80,6 +80,7 @@
             this.DBErrorsTextBox = new System.Windows.Forms.RichTextBox();
             this.mySqlCommand1 = new MySql.Data.MySqlClient.MySqlCommand();
             this.MySql_ToggleButton = new System.Windows.Forms.Button();
+            this.bnetServer_toggleButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.eventLogTabPage.SuspendLayout();
@@ -92,7 +93,7 @@
             this.authServer_toggleButton.BackColor = System.Drawing.Color.LightSteelBlue;
             this.authServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.authServer_toggleButton.Image = ((System.Drawing.Image)(resources.GetObject("authServer_toggleButton.Image")));
-            this.authServer_toggleButton.Location = new System.Drawing.Point(8, 100);
+            this.authServer_toggleButton.Location = new System.Drawing.Point(8, 83);
             this.authServer_toggleButton.Name = "authServer_toggleButton";
             this.authServer_toggleButton.Size = new System.Drawing.Size(52, 50);
             this.authServer_toggleButton.TabIndex = 0;
@@ -105,12 +106,24 @@
             this.worldServer_toggleButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.worldServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.worldServer_toggleButton.Image = ((System.Drawing.Image)(resources.GetObject("worldServer_toggleButton.Image")));
-            this.worldServer_toggleButton.Location = new System.Drawing.Point(8, 40);
+            this.worldServer_toggleButton.Location = new System.Drawing.Point(8, 27);
             this.worldServer_toggleButton.Name = "worldServer_toggleButton";
             this.worldServer_toggleButton.Size = new System.Drawing.Size(52, 50);
             this.worldServer_toggleButton.TabIndex = 1;
             this.worldServer_toggleButton.UseVisualStyleBackColor = false;
             this.worldServer_toggleButton.Click += new System.EventHandler(this.ToggleServerButton);
+            // 
+            // bnetServer_toggleButton
+            // 
+            this.bnetServer_toggleButton.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.bnetServer_toggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.bnetServer_toggleButton.Image = ((System.Drawing.Image)(resources.GetObject("bnetServer_toggleButton.Image")));
+            this.bnetServer_toggleButton.Location = new System.Drawing.Point(8, 139);
+            this.bnetServer_toggleButton.Name = "bnetServer_toggleButton";
+            this.bnetServer_toggleButton.Size = new System.Drawing.Size(52, 50);
+            this.bnetServer_toggleButton.TabIndex = 9;
+            this.bnetServer_toggleButton.UseVisualStyleBackColor = false;
+            this.bnetServer_toggleButton.Click += new System.EventHandler(this.ToggleServerButton);
             // 
             // menuStrip1
             // 
@@ -261,14 +274,14 @@
             this.restartProcessesToolStripMenuItem,
             this.clearDBErrorsToolStripMenuItem});
             this.serverToolStripMenuItem1.Name = "serverToolStripMenuItem1";
-            this.serverToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.serverToolStripMenuItem1.Size = new System.Drawing.Size(119, 22);
             this.serverToolStripMenuItem1.Text = "Server";
             // 
             // hideProcessesToolStripMenuItem
             // 
             this.hideProcessesToolStripMenuItem.CheckOnClick = true;
             this.hideProcessesToolStripMenuItem.Name = "hideProcessesToolStripMenuItem";
-            this.hideProcessesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.hideProcessesToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.hideProcessesToolStripMenuItem.Text = "Hide processes";
             this.hideProcessesToolStripMenuItem.ToolTipText = "Hides server processes. Disables console input/output.";
             this.hideProcessesToolStripMenuItem.Click += new System.EventHandler(this.hideProcessesToolStripMenuItem_Click);
@@ -277,7 +290,7 @@
             // 
             this.restartProcessesToolStripMenuItem.CheckOnClick = true;
             this.restartProcessesToolStripMenuItem.Name = "restartProcessesToolStripMenuItem";
-            this.restartProcessesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.restartProcessesToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.restartProcessesToolStripMenuItem.Text = "Restart processes";
             this.restartProcessesToolStripMenuItem.ToolTipText = "Restarts server processes on crashes or unexpected exits";
             this.restartProcessesToolStripMenuItem.Click += new System.EventHandler(this.restartProcessesToolStripMenuItem_Click);
@@ -286,7 +299,7 @@
             // 
             this.clearDBErrorsToolStripMenuItem.CheckOnClick = true;
             this.clearDBErrorsToolStripMenuItem.Name = "clearDBErrorsToolStripMenuItem";
-            this.clearDBErrorsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearDBErrorsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.clearDBErrorsToolStripMenuItem.Text = "Clear DBErrors.log";
             this.clearDBErrorsToolStripMenuItem.ToolTipText = "Deletes DBErrors.log upon worldserver startup";
             this.clearDBErrorsToolStripMenuItem.Click += new System.EventHandler(this.clearDBErrorsToolStripMenuItem_Click);
@@ -296,14 +309,14 @@
             this.clientToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.clearClientCacheToolStripMenuItem});
             this.clientToolStripMenuItem.Name = "clientToolStripMenuItem";
-            this.clientToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clientToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.clientToolStripMenuItem.Text = "Client";
             // 
             // clearClientCacheToolStripMenuItem
             // 
             this.clearClientCacheToolStripMenuItem.CheckOnClick = true;
             this.clearClientCacheToolStripMenuItem.Name = "clearClientCacheToolStripMenuItem";
-            this.clearClientCacheToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearClientCacheToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
             this.clearClientCacheToolStripMenuItem.Text = "Clear cache";
             this.clearClientCacheToolStripMenuItem.ToolTipText = "Deletes the client\'s cache folder upon client startup";
             this.clearClientCacheToolStripMenuItem.Click += new System.EventHandler(this.clearClientCacheToolStripMenuItem_Click);
@@ -316,7 +329,7 @@
             this.showTrayIconToolStripMenuItem,
             this.clearConsoleToolStripMenuItem});
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(119, 22);
             this.toolStripMenuItem3.Text = "Launcher";
             // 
             // selectIconToolStripMenuItem
@@ -329,7 +342,7 @@
             this.warcraft3ToolStripMenuItem,
             this.warcraft4ToolStripMenuItem});
             this.selectIconToolStripMenuItem.Name = "selectIconToolStripMenuItem";
-            this.selectIconToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectIconToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.selectIconToolStripMenuItem.Text = "Select icon...";
             // 
             // blueauthserverToolStripMenuItem
@@ -378,7 +391,7 @@
             // 
             this.showInTaskbarToolStripMenuItem.CheckOnClick = true;
             this.showInTaskbarToolStripMenuItem.Name = "showInTaskbarToolStripMenuItem";
-            this.showInTaskbarToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showInTaskbarToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.showInTaskbarToolStripMenuItem.Text = "Show in taskbar";
             this.showInTaskbarToolStripMenuItem.Click += new System.EventHandler(this.showInTaskbarToolStripMenuItem_Click);
             // 
@@ -386,7 +399,7 @@
             // 
             this.showTrayIconToolStripMenuItem.CheckOnClick = true;
             this.showTrayIconToolStripMenuItem.Name = "showTrayIconToolStripMenuItem";
-            this.showTrayIconToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showTrayIconToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.showTrayIconToolStripMenuItem.Text = "Show tray icon";
             this.showTrayIconToolStripMenuItem.Click += new System.EventHandler(this.showTrayIconToolStripMenuItem_Click);
             // 
@@ -394,7 +407,7 @@
             // 
             this.clearConsoleToolStripMenuItem.CheckOnClick = true;
             this.clearConsoleToolStripMenuItem.Name = "clearConsoleToolStripMenuItem";
-            this.clearConsoleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearConsoleToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.clearConsoleToolStripMenuItem.Text = "Startup clears console";
             this.clearConsoleToolStripMenuItem.ToolTipText = "Set to clear the world console log on (re)start. ";
             this.clearConsoleToolStripMenuItem.Click += new System.EventHandler(this.clearLogToolStripMenuItem_Click);
@@ -531,7 +544,7 @@
             this.MySql_ToggleButton.BackColor = System.Drawing.Color.White;
             this.MySql_ToggleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.MySql_ToggleButton.Image = ((System.Drawing.Image)(resources.GetObject("MySql_ToggleButton.Image")));
-            this.MySql_ToggleButton.Location = new System.Drawing.Point(8, 160);
+            this.MySql_ToggleButton.Location = new System.Drawing.Point(8, 195);
             this.MySql_ToggleButton.Name = "MySql_ToggleButton";
             this.MySql_ToggleButton.Size = new System.Drawing.Size(52, 50);
             this.MySql_ToggleButton.TabIndex = 8;
@@ -545,6 +558,7 @@
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(359, 251);
+            this.Controls.Add(this.bnetServer_toggleButton);
             this.Controls.Add(this.MySql_ToggleButton);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.worldServer_toggleButton);
@@ -627,5 +641,6 @@
         private System.Windows.Forms.TabPage eventLogTabPage;
         private System.Windows.Forms.RichTextBox eventLogTextBox;
         private System.Windows.Forms.Button MySql_ToggleButton;
+        private System.Windows.Forms.Button bnetServer_toggleButton;
     }
 }
