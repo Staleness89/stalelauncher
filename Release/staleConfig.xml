@@ -10,7 +10,7 @@
   
   <Client>
     <Settings client_path="D:\World of Warcraft (3.3.5)" /> <!--'Path to your WoW client' -->
-    <Settings client_exe="WoW" /> <!--'Filename of your WoW client executable' -->
+    <Settings client_exe="" /> <!--'Filename of your WoW client executable' -->
     <Settings client_locale = "enUS" />  <!--'Your countrys locale'-->
     <Settings empty_path_warning = "true" /> <!--'Disable the empty path warning here (true or false)'-->
   </Client>

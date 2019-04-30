@@ -7,13 +7,11 @@ namespace sqlTools
 {
     class DBConnection
     {
-        public static string connectionString;
-        public static bool sqlProcessOpen = false;
+        private static string connectionString;
 
         public static bool Connect(string user, string password, string address, string port)
         {
-            connectionString = "user id=" + user + ";" + "password=" + password + "; " + "server=" + address + ";" + 
-            "database=auth;" + "port=" + port + ";" + "Convert Zero Datetime=True";
+            connectionString = "user id=" + user + ";" + "password=" + password + "; " + "server=" + address + ";" + "database=auth;" + "port=" + port + ";" + "Convert Zero Datetime=True";
 
             try
             {

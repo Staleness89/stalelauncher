@@ -12,7 +12,7 @@ namespace staleLauncher.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.1.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,19 +25,19 @@ namespace staleLauncher.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool hideProcesses {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool clearConsoleOnStartup {
             get {
-                return ((bool)(this["hideProcesses"]));
+                return ((bool)(this["clearConsoleOnStartup"]));
             }
             set {
-                this["hideProcesses"] = value;
+                this["clearConsoleOnStartup"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool clearDBErrors {
             get {
                 return ((bool)(this["clearDBErrors"]));
@@ -73,7 +73,7 @@ namespace staleLauncher.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("blue")]
+        [global::System.Configuration.DefaultSettingValueAttribute("worldserver")]
         public string iconString {
             get {
                 return ((string)(this["iconString"]));
@@ -164,6 +164,54 @@ namespace staleLauncher.Properties {
             }
             set {
                 this["save_db_info"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string serverPath {
+            get {
+                return ((string)(this["serverPath"]));
+            }
+            set {
+                this["serverPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string authExe {
+            get {
+                return ((string)(this["authExe"]));
+            }
+            set {
+                this["authExe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string worldExe {
+            get {
+                return ((string)(this["worldExe"]));
+            }
+            set {
+                this["worldExe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool hideProcesses {
+            get {
+                return ((bool)(this["hideProcesses"]));
+            }
+            set {
+                this["hideProcesses"] = value;
             }
         }
     }

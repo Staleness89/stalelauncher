@@ -4,36 +4,42 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using staleLauncher.Properties;
 using sqlTools;
+using System.ComponentModel;
+using System.ServiceProcess;
 
 namespace staleLauncher
 {
     public partial class ServerControl : Form
     {
-        public const int WM_NCLBUTTONDOWN = 0xA1;
-        public const int HT_CAPTION = 0x2;
-
+        public const int WM_NCLBUTTONDOWN = 0xA1, HT_CAPTION = 0x2;
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
 
-        public static string serverPath;
-        public static string worldExe;
-        public static string authExe;
+        public static string serverPath, worldExe, authExe;
 
-        public static bool intentionedStop_worldServer = false;
-        public static bool intentionedStop_authServer = false;
-
-        public static Form sqlProcess = null;
-
-        ProcessStartInfo _worldServer = new ProcessStartInfo();
-        ProcessStartInfo _authServer = new ProcessStartInfo();
-
-        Process worldServer = new Process();
-        Process authServer = new Process();
+        public static bool intentionedStop = false;
 
         SqlConnectForm sqlConnectForm;
+        ServiceController mySqlController = new ServiceController();
+        public static string mySqlServiceName = "";
+        public static Form sqlProcess = null;
+        About aboutPage = null;
 
+        public static ProcessStartInfo worldServerStartInfo = new ProcessStartInfo();
+        public static ProcessStartInfo authServerStartInfo = new ProcessStartInfo();
+        private static Process worldServer = null;
+        private static Process authServer = null;
+
+
+        private BackgroundWorker worldConsoleOutputWorker = new BackgroundWorker();
+        private BackgroundWorker worldConsoleOutputErrorWorker = new BackgroundWorker();
+        StreamWriter worldStreamWriter;
+
+        private bool ClearDBErrors { get { return Settings.Default.clearDBErrors; } set { Settings.Default.clearDBErrors = value; } }
+        private bool DeleteClientCache { get { return Settings.Default.deleteClientCache; } set { Settings.Default.deleteClientCache = value; } }
+        private bool HideProcesses { get { return Settings.Default.hideProcesses; } set { Settings.Default.hideProcesses = value; } }
 
         public void CommandForm_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
@@ -47,71 +53,108 @@ namespace staleLauncher
         public ServerControl()
         {
             InitializeComponent();
-            UpdateServerButtons();
-            SyncCheckboxSettings();
 
-            _authServer.WorkingDirectory = serverPath;
-            _authServer.FileName = serverPath + "\\" + authExe + ".exe";
+            authServerStartInfo.WorkingDirectory = worldServerStartInfo.WorkingDirectory = serverPath;
+            authServerStartInfo.FileName = serverPath + "\\" + authExe + ".exe";
+            worldServerStartInfo.FileName = serverPath + "\\" + worldExe + ".exe";
+            mySqlController.ServiceName = mySqlServiceName;
 
-            _worldServer.WorkingDirectory = serverPath;
-            _worldServer.FileName = serverPath + "\\" + worldExe + ".exe";
-
-            if (StaleLauncherContext.clientEntryPath == string.Empty)
+            if (string.IsNullOrEmpty(StaleLauncher.clientPath) || string.IsNullOrEmpty(StaleLauncher.clientLocale) || string.IsNullOrEmpty(StaleLauncher.clientExe))
+            {
+                if (StaleLauncher.clientPathWarning == "true")
+                    MessageBox.Show("Client configuration in StaleConfig.xml is incomplete", "Warning");
                 launchClientToolStripMenuItem.Dispose();
+                clientToolStripMenuItem.Dispose();
+            }
+                
 
             FormClosing += new FormClosingEventHandler(OnFormExit);
-            Activated += new EventHandler(servercontrol_Focus);
             MouseDown += new MouseEventHandler(CommandForm_MouseDown);
+
+            worldConsoleOutputWorker.WorkerReportsProgress = worldConsoleOutputWorker.WorkerSupportsCancellation = true;
+            worldConsoleOutputWorker.ProgressChanged += WorldConsoleOutputWorker_ProgressChanged;
+            worldConsoleOutputWorker.DoWork += WorldConsoleOutputWorker_DoWork;
+
+            worldConsoleOutputErrorWorker.WorkerReportsProgress = worldConsoleOutputErrorWorker.WorkerSupportsCancellation = true;
+            worldConsoleOutputErrorWorker.ProgressChanged += WorldConsoleOutputErrorWorker_ProgressChanged;
+            worldConsoleOutputErrorWorker.DoWork += WorldConsoleOutputErrorWorker_DoWork;
+
+
+            worldServer = GetServerProcess(worldExe);
+            if (worldServer != null) { worldServer.EnableRaisingEvents = true; worldServer.Exited += (worldServer, EventArgs) =>
+            { serverProcessExit(worldServer, EventArgs, worldExe); }; };
+            authServer = GetServerProcess(authExe);
+            if (authServer != null) { authServer.EnableRaisingEvents = true; authServer.Exited += (authServer, EventArgs) =>
+            { serverProcessExit(authServer, EventArgs, authExe); }; };
+
+            UpdateServerButtons();
+            SyncCheckboxSettings();
         }
 
-        public void UpdateServerButtons()
+        private void WorldConsoleOutputWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            Process[] worldProcessGet = Process.GetProcessesByName(worldExe);
-            Process[] authProcessGet = Process.GetProcessesByName(authExe);
-
-            if (authProcessGet.Length == 0)
-                authServer_toggleButton.Image = Resources.greyscale.ToBitmap();
-            else
-                authServer_toggleButton.Image = Resources.authServer.ToBitmap();
-
-            if (worldProcessGet.Length == 0)
-                worldServer_toggleButton.Image = Resources.greyscale.ToBitmap();
-            else
-                worldServer_toggleButton.Image = Resources.worldServer.ToBitmap();
-
-            foreach (var process in worldProcessGet)
+            StreamReader StandardOutput = e.Argument as StreamReader;
+            string data = StandardOutput.ReadLine();
+            while (data != null)
             {
-                process.EnableRaisingEvents = true;
-                process.Exited += new EventHandler(worldProcessExit);
-            }
-
-            foreach (var process in authProcessGet)
-            {
-                process.EnableRaisingEvents = true;
-                process.Exited += new EventHandler(authProcessExit);
+                worldConsoleOutputWorker.ReportProgress(100, data);
+                data = StandardOutput.ReadLine();
             }
         }
 
+        private void WorldConsoleOutputErrorWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            StreamReader StandardOutput = e.Argument as StreamReader;
+
+            string data = worldServer == null ? StandardOutput.ReadToEnd() : StandardOutput.ReadLine();
+            //string data = StandardOutput.ReadLine();
+            while (data != null)
+            {
+                worldConsoleOutputErrorWorker.ReportProgress(100, data);
+                data = worldServer == null ? StandardOutput.ReadToEnd() : StandardOutput.ReadLine();
+            }
+        }
+
+        private void WorldConsoleOutputWorker_Exit(object sender, DoWorkEventArgs e)
+        {
+            StreamReader StandardOutput = e.Argument as StreamReader;
+            string data = worldServer.HasExited ? StandardOutput.ReadToEnd() : StandardOutput.ReadLine();
+            while (data != null)
+            {
+                worldConsoleOutputErrorWorker.ReportProgress(100, data);
+                data = StandardOutput.ReadToEnd();
+            }
+        }
+
+        private void WorldConsoleOutputWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            worldConsoleTextBox.Invoke(new Action(() => worldConsoleTextBox.AppendText(e.UserState as string + "\r\n"))); }
+
+        private void WorldConsoleOutputErrorWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            DBErrorsTextBox.Invoke(new Action(() => DBErrorsTextBox.AppendText(e.UserState as string + "\r\n"))); }
+
+        public void launcherLogInsert(string newText, RichTextBox consoleWindow) {
+            consoleWindow.Invoke(new Action(() => consoleWindow.AppendText(System.DateTime.Now.ToLocalTime().ToLongTimeString() + ": " + newText + Environment.NewLine))); }
+                
         private void SyncCheckboxSettings()
         {
-            ToggleHiddenProcesses(Settings.Default.hideProcesses);
             restartProcessesToolStripMenuItem.Checked = Settings.Default.restartProcesses;
+            hideProcessesToolStripMenuItem.Checked = Settings.Default.hideProcesses;
             clearDBErrorsToolStripMenuItem.Checked = Settings.Default.clearDBErrors;
             clearClientCacheToolStripMenuItem.Checked = Settings.Default.deleteClientCache;
             showInTaskbarToolStripMenuItem.Checked = Settings.Default.showInTaskbar;
             ShowInTaskbar = Settings.Default.showInTaskbar;
             showTrayIconToolStripMenuItem.Checked = Settings.Default.showTrayIcon;
-            MinimizeBox = !Settings.Default.showTrayIcon;
+            clearConsoleToolStripMenuItem.Checked = Settings.Default.clearConsoleOnStartup;
 
             switch (Settings.Default.iconString)
             {
-                case "red":
+                case "worldserver":
                     redworldserverToolStripMenuItem.Checked = true;
-                    Icon = Resources.worldServer;
+                    Icon = Resources.worldserver;
                     break;
-                case "blue":
+                case "authserver":
                     blueauthserverToolStripMenuItem.Checked = true;
-                    Icon = Resources.authServer;
+                    Icon = Resources.authserver;
                     break;
                 case "wow1":
                     warcraft1ToolStripMenuItem.Checked = true;
@@ -132,417 +175,266 @@ namespace staleLauncher
             }
         }
 
-        private void worldProcessExit(Object sender, EventArgs e)
+        public void UpdateServerButtons()
         {
-            Process[] worldProcessGet = Process.GetProcessesByName(worldExe);
-            
-            if (worldProcessGet.Length == 0)
-                worldServer_toggleButton.Image = Resources.greyscale.ToBitmap();
-
-            if (!intentionedStop_worldServer)
+            if (authServer == null)
             {
-                if (Settings.Default.restartProcesses)
-                {
-                    worldServer.StartInfo = _worldServer;
-                    StartServerExe(worldServer.StartInfo);
-                }
-
-                System.Media.SystemSounds.Exclamation.Play();
-                launcherLogInsert("Worldserver unexpected stop");
-            }
-            else
-                launcherLogInsert("Worldserver stopped");
-        }
-
-
-        private void authProcessExit(Object sender, EventArgs e)
-        {
-            Process[] authProcessGet = Process.GetProcessesByName(authExe);
-
-            if (authProcessGet.Length == 0)
+                authServer_toggleButton.BackColor = System.Drawing.Color.LightSteelBlue;
                 authServer_toggleButton.Image = Resources.greyscale.ToBitmap();
-
-            if (!intentionedStop_authServer)
+            }
+            else
             {
-                if (Settings.Default.restartProcesses)
-                {
-                    authServer.StartInfo = _authServer;
-                    StartServerExe(authServer.StartInfo);
-                }
+                authServer_toggleButton.BackColor = System.Drawing.Color.DodgerBlue;
+                authServer_toggleButton.Image = Resources.authserver.ToBitmap();
+            }
+            if (worldServer == null)
+            {
+                worldServer_toggleButton.BackColor = System.Drawing.Color.MistyRose;
+                worldServer_toggleButton.Image = Resources.greyscale.ToBitmap();
+            }   
+            else
+            {
+                worldServer_toggleButton.Image = Resources.worldserver.ToBitmap();
+                worldServer_toggleButton.BackColor = System.Drawing.Color.Red;
+            }
 
+            if (mySqlController.Status == ServiceControllerStatus.Stopped)
+            {
+                MySql_ToggleButton.BackColor = System.Drawing.Color.Silver;
+                MySql_ToggleButton.Image = Resources.mysql_white.ToBitmap();
+            }
+            else
+            {
+                MySql_ToggleButton.Image = Resources.mysql.ToBitmap();
+                MySql_ToggleButton.BackColor = System.Drawing.Color.White;
+            }                
+        }
+
+        private void serverProcessExit(Object sender, EventArgs e, string processType)
+        {
+            if (!intentionedStop)
+            {
+                launcherLogInsert(processType + " unintentionally exited.", eventLogTextBox);
                 System.Media.SystemSounds.Exclamation.Play();
-                launcherLogInsert("Authserver unexpected stop");
             }
-            else
-                launcherLogInsert("Authserver stopped");
+            else launcherLogInsert(processType + " stopped.", eventLogTextBox);
+
+            if (processType == worldExe) worldServer = null;
+            if (processType == authExe) authServer = null;
+
+            UpdateServerButtons();
         }
 
-        public void launcherLogInsert(string newText)
+        private Process GetServerProcess(string processExe)
         {
-            if (launcherLog.IsHandleCreated)
-                launcherLog.Invoke(new Action(() => launcherLog.AppendText(System.DateTime.Now.ToLocalTime().ToLongTimeString() + ": " + newText + Environment.NewLine)));
+            if (Process.GetProcessesByName(processExe).Length > 1)
+                MessageBox.Show("There are more than one " + processExe + " processes running.", "Warning");
+
+            if (Process.GetProcessesByName(processExe).Length > 0) // remember length is NOT 0 based
+                return Process.GetProcessesByName(processExe)[0];
+            else return null;
         }
 
-        private void ToggleWorldServer(Object sender, EventArgs e)
+
+        public void ToggleServerButton(Object sender, EventArgs e)
         {
-            Process[] worldProcessGet = Process.GetProcessesByName(worldExe);
+            intentionedStop = true; // disable the alarm
 
-            if (worldProcessGet.Length == 0)
+            if (sender == worldServer_toggleButton)
             {
-                if (Settings.Default.clearDBErrors == true && File.Exists(serverPath + "\\" + "DBErrors.log"))
-                    File.Delete(serverPath + "\\" + "DBErrors.log");
-
-                worldServer.StartInfo = _worldServer;
-                StartServerExe(worldServer.StartInfo);
-
-                // refresh this
-                intentionedStop_worldServer = false;
-            }
-            else
-            {
-                intentionedStop_worldServer = true;
-                worldProcessGet[0].Kill();
-                worldProcessGet[0].Dispose();
-            }
-        }
-
-        private void ToggleAuthServer(Object sender, EventArgs e)
-        {
-            Process[] authProcessGet = Process.GetProcessesByName(authExe);
-
-            if (authProcessGet.Length == 0)
-            {
-                authServer.StartInfo = _authServer;
-                StartServerExe(authServer.StartInfo);
-
-                // refresh this
-                intentionedStop_authServer = false;
-            }
-            else
-            {
-                intentionedStop_authServer = true;
-                authProcessGet[0].Kill();
-                authProcessGet[0].Dispose();
-            }
-        }
-
-        public void StartServerExe(ProcessStartInfo serverExe)
-        {
-            if (File.Exists(serverExe.FileName))
-            {
-                Process server = Process.Start(serverExe);
-                server.EnableRaisingEvents = true;
-
-                if (serverExe == _worldServer)
+                if (worldServer == null)
                 {
-                    server.Exited += new EventHandler(worldProcessExit);
-                    worldServer_toggleButton.Image = Resources.worldServer.ToBitmap();
-                    launcherLogInsert("Worldserver started");
+                    if (Settings.Default.clearDBErrors == true && File.Exists(serverPath + "\\" + "DBErrors.log"))
+                        File.Delete(serverPath + "\\" + "DBErrors.log");
+                    StartServerExe(worldServerStartInfo);
                 }
-                else if (serverExe == _authServer)
+                else
+                    worldServer.Kill();
+            }
+            else if (sender == authServer_toggleButton)
+            {
+                if (authServer == null)
+                    StartServerExe(authServerStartInfo);
+                else
                 {
-                    server.Exited += new EventHandler(authProcessExit);
-                    authServer_toggleButton.Image = Resources.authServer.ToBitmap();
-                    launcherLogInsert("Authserver started");
+                    authServer.Kill();
                 }
             }
-            else
-                MessageBox.Show("File not found", "Error");
+            else if (sender == MySql_ToggleButton)
+            {
+                if (mySqlController.Status == ServiceControllerStatus.Running)
+                {
+                    mySqlController.Stop();
+                    mySqlController.WaitForStatus(ServiceControllerStatus.Stopped);
+                }
+                else
+                {
+                    mySqlController.Start();
+                    mySqlController.WaitForStatus(ServiceControllerStatus.Running);
+                }
+            }
+            UpdateServerButtons();
         }
 
-        private void ToggleHiddenProcesses(bool enabled)
+        public void StartServerExe(ProcessStartInfo serverStartInfo)
         {
-            Settings.Default.hideProcesses = enabled;
-            hideProcessesToolStripMenuItem.Checked = enabled;
+            if (File.Exists(serverStartInfo.FileName))
+            {   
+                if (Settings.Default.hideProcesses)
+                {
+                    serverStartInfo.UseShellExecute = false;
+                    serverStartInfo.CreateNoWindow = true;
+                }
+                else
+                {
+                    serverStartInfo.UseShellExecute = true;
+                    serverStartInfo.CreateNoWindow = false;
+                }
+                    
 
-            if (enabled)
-            {
-                _worldServer.WindowStyle = ProcessWindowStyle.Hidden;
-                _authServer.WindowStyle = ProcessWindowStyle.Hidden;
+                if (serverStartInfo == worldServerStartInfo)
+                {
+                    if (Settings.Default.clearConsoleOnStartup)
+                    {
+                        DBErrorsTextBox.Text = "";
+                        worldConsoleTextBox.Text = "";
+                    }                        
+
+                    if (Settings.Default.hideProcesses)
+                        serverStartInfo.RedirectStandardOutput = serverStartInfo.RedirectStandardError = serverStartInfo.RedirectStandardInput = true;
+
+                    worldServer = Process.Start(serverStartInfo);
+                    worldServer.EnableRaisingEvents = true;
+                    worldServer.Exited += (worldServer, EventArgs) => { serverProcessExit(worldServer, EventArgs, worldExe); };
+                    launcherLogInsert(worldExe + " started.", eventLogTextBox);
+
+                    if (Settings.Default.hideProcesses)
+                    {
+                        worldConsoleOutputWorker.RunWorkerAsync(worldServer.StandardOutput);
+                        worldConsoleOutputErrorWorker.RunWorkerAsync(worldServer.StandardError);
+                        worldStreamWriter = worldServer.StandardInput;
+                    }
+
+                    
+                }
+                else if (serverStartInfo == authServerStartInfo)
+                {
+                    authServer = Process.Start(serverStartInfo);
+                    launcherLogInsert(authExe + " started.", eventLogTextBox);
+                    authServer.EnableRaisingEvents = true;
+                    authServer.Exited += (authServer, EventArgs) => { serverProcessExit(authServer, EventArgs, authExe); };
+                }
             }
             else
-            {
-                _worldServer.WindowStyle = ProcessWindowStyle.Normal;
-                _authServer.WindowStyle = ProcessWindowStyle.Normal;
-            }
+                MessageBox.Show(serverStartInfo.FileName.ToString() + " not found", "Error");
+            intentionedStop = false; // reset the alarm
         }
 
-        private void ToggleClearDBErrors(bool enabled)
+        public void ToggleTrayIcon(bool enabled)
         {
-            Settings.Default.clearDBErrors = enabled;
-        }
-
-        private void ToggleDeleteClientCache(bool enabled)
-        {
-            Settings.Default.deleteClientCache = enabled;
-        }
-
-        private void ToggleShowInTaskbar(bool enabled)
-        {
-            Settings.Default.showInTaskbar = enabled;
-            ShowInTaskbar = enabled;
-        }
-        
-        private void ToggleShowTrayIcon(bool enabled)
-        {
-            Settings.Default.showTrayIcon = enabled;
-            StaleLauncherContext._trayIcon.Visible = enabled;
+            Settings.Default.showTrayIcon = StaleLauncher._trayIcon.Visible = enabled;
             MinimizeBox = !enabled;
             if (enabled)
-                StaleLauncherContext._serverControl.FormClosed -= new FormClosedEventHandler(Exit);
+                StaleLauncher._serverControl.FormClosed -= new FormClosedEventHandler(Exit);
             else
-                StaleLauncherContext._serverControl.FormClosed += new FormClosedEventHandler(Exit);
+                StaleLauncher._serverControl.FormClosed += new FormClosedEventHandler(Exit);
         }
 
-        private void OpenDirectory(string path)
-        {
-            if (Directory.Exists(path))
-                Process.Start(path);
-            else
-            {
-                MessageBox.Show("Folder does not exist.", "Error");
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-        }
-
-        private void OpenFile(string path)
+        private void OpenFileOrDirectory(string path)
         {
             if (File.Exists(path))
                 Process.Start(path);
+            else if (Directory.Exists(path))
+                Process.Start(path);
             else
             {
-                MessageBox.Show("File does not exist.", "Error");
+                MessageBox.Show("\"" + path + "\"" + " could not be found.", "Error");
                 System.Media.SystemSounds.Exclamation.Play();
             }
         }
 
         //    TASKBAR CLICK EVENTS
-        private void openClientFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenFileOrFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenDirectory(StaleLauncherContext.clientEntryPath);
+            switch (sender.ToString())
+            {
+                case "Client Folder":
+                    OpenFileOrDirectory(StaleLauncher.clientPath);
+                    break;
+                case "Server Folder":
+                    OpenFileOrDirectory(serverPath);
+                    break;
+                case "DBErrors.log":
+                    OpenFileOrDirectory(serverPath + "\\" + "DBErrors.log");
+                    break;
+                case "Server.log":
+                    OpenFileOrDirectory(serverPath + "\\" + "Server.log");
+                    break;
+                case "Auth.log":
+                    OpenFileOrDirectory(serverPath + "\\" + "Auth.log");
+                    break;
+                case "worldserver.conf":
+                    OpenFileOrDirectory(serverPath + "\\" + "worldserver.conf");
+                    break;
+                case "authserver.conf":
+                    OpenFileOrDirectory(serverPath + "\\" + "authserver.conf");
+                    break;
+                case "staleconfigxmlToolStripMenuItem":
+                    OpenFileOrDirectory(Application.StartupPath + "\\" + "staleconfig.xml");
+                    break;
+                case "realmlist.wtf":
+                    OpenFileOrDirectory(StaleLauncher.clientPath + "\\Data\\" + StaleLauncher.clientLocale + "\\" + "realmlist.wtf");
+                    break;
+                case "Launch Client":
+                    StaleLauncher.LaunchClient();
+                    break;
+            }
         }
-
-        private void serverToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenDirectory(serverPath);
-        }
-
-        private void dBErrorslogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "DBErrors.log");
-        }
-
-        private void serverlogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "Server.log");
-        }
-
-        private void authlogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "Auth.log");
-        }
-
-        private void worldserverconfToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "worldserver.conf");
-        }
-
-        private void authserverconfToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "authserver.conf");
-        }
-
-        private void staleconfigxmlToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(serverPath + "\\" + "staleconfig.xml");
-        }
-
-        private void realmlistwtfToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile(StaleLauncherContext.clientEntryPath + "\\Data\\" + StaleLauncherContext.clientLocale + "\\" + "realmlist.wtf");
-        }
+       // private void clearLogToolStripMenuItem_Click(object sender, EventArgs e) {
+      //      launcherLog.Invoke(new Action(() => launcherLog.Text = null)); }
 
         //    FILESTRIP "OPTIONS" TOGGLES
-        //  1: Server
-        private void hideProcessesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToggleHiddenProcesses(hideProcessesToolStripMenuItem.Checked);
-        }
+        private void restartProcessesToolStripMenuItem_Click(object sender, EventArgs e) { Settings.Default.restartProcesses = restartProcessesToolStripMenuItem.Checked; }
+        private void clearDBErrorsToolStripMenuItem_Click(object sender, EventArgs e) { ClearDBErrors = clearDBErrorsToolStripMenuItem.Checked; }
+        private void clearClientCacheToolStripMenuItem_Click(object sender, EventArgs e) { DeleteClientCache = clearClientCacheToolStripMenuItem.Checked; }
+        private void clearLogToolStripMenuItem_Click(object sender, EventArgs e) { Settings.Default.clearConsoleOnStartup = clearConsoleToolStripMenuItem.Checked; }
+        private void hideProcessesToolStripMenuItem_Click(object sender, EventArgs e) { Settings.Default.hideProcesses = hideProcessesToolStripMenuItem.Checked; }
 
-        private void restartProcessesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Settings.Default.restartProcesses = restartProcessesToolStripMenuItem.Checked;
-        }
-
-        private void clearDBErrorsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToggleClearDBErrors(clearDBErrorsToolStripMenuItem.Checked);
-        }
-
-        //  2: Client
-        private void clearClientCacheToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToggleDeleteClientCache(clearClientCacheToolStripMenuItem.Checked);
-        }
-
-        //  3: Launcher
+        //  3: Launcher @TODO can condense these somewhere?
         private void showInTaskbarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToggleShowInTaskbar(showInTaskbarToolStripMenuItem.Checked);
+            ShowInTaskbar = showInTaskbarToolStripMenuItem.Checked;
 
             if (!showTrayIconToolStripMenuItem.Checked && !showInTaskbarToolStripMenuItem.Checked)
             {
-                ToggleShowTrayIcon(true);
+                ToggleTrayIcon(true);
                 showTrayIconToolStripMenuItem.Checked = true;
-            }
+            }            
         }
 
         private void showTrayIconToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToggleShowTrayIcon(showTrayIconToolStripMenuItem.Checked);
+            ToggleTrayIcon(showTrayIconToolStripMenuItem.Checked);
 
             if (!showInTaskbarToolStripMenuItem.Checked && !showTrayIconToolStripMenuItem.Checked)
             {
-                ToggleShowInTaskbar(true);
+                ShowInTaskbar = true;
                 showInTaskbarToolStripMenuItem.Checked = true;
             }
         }
 
-        private void blueauthserverToolStripMenuItem_Click(object sender, EventArgs e)
+        private void changeIconToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (blueauthserverToolStripMenuItem.Checked)
-                return;
+            blueauthserverToolStripMenuItem.Checked = redworldserverToolStripMenuItem.Checked = warcraft1ToolStripMenuItem.Checked = 
+            warcraft3ToolStripMenuItem.Checked = warcraft2ToolStripMenuItem.Checked = warcraft4ToolStripMenuItem.Checked = false;
+            ((ToolStripMenuItem)sender).Checked = true;
 
-            blueauthserverToolStripMenuItem.Checked = true;
-            redworldserverToolStripMenuItem.Checked = false;
-            warcraft1ToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.authServer;
-            Icon = Resources.authServer;
-            Settings.Default.iconString = "blue";
+            Settings.Default.iconString = sender.ToString();
+            Icon = StaleLauncher.GetPreferredTrayIcon();
+            StaleLauncher._trayIcon.Icon = StaleLauncher.GetPreferredTrayIcon();
         }
 
-        private void redworldserverToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (redworldserverToolStripMenuItem.Checked)
-                return;
-
-            redworldserverToolStripMenuItem.Checked = true;
-            blueauthserverToolStripMenuItem.Checked = false;
-            warcraft1ToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.worldServer;
-            Icon = Resources.worldServer;
-            Settings.Default.iconString = "red";
-        }
-
-        private void warcraft1ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (warcraft1ToolStripMenuItem.Checked)
-                return;
-
-            warcraft1ToolStripMenuItem.Checked = true;
-            warcraft2ToolStripMenuItem.Checked = false;
-            warcraft3ToolStripMenuItem.Checked = false;
-            warcraft4ToolStripMenuItem.Checked = false;
-            blueauthserverToolStripMenuItem.Checked = false;
-            redworldserverToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.WoW;
-            Icon = Resources.WoW;
-            Settings.Default.iconString = "wow1";
-        }
-
-        private void warcraft2ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (warcraft2ToolStripMenuItem.Checked)
-                return;
-
-            warcraft2ToolStripMenuItem.Checked = true;
-            warcraft1ToolStripMenuItem.Checked = false;
-            warcraft3ToolStripMenuItem.Checked = false;
-            warcraft4ToolStripMenuItem.Checked = false;
-            blueauthserverToolStripMenuItem.Checked = false;
-            redworldserverToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.WoW2;
-            Icon = Resources.WoW2;
-            Settings.Default.iconString = "wow2";
-        }
-
-        private void warcraft3ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (warcraft3ToolStripMenuItem.Checked)
-                return;
-
-            warcraft3ToolStripMenuItem.Checked = true;
-            warcraft1ToolStripMenuItem.Checked = false;
-            warcraft2ToolStripMenuItem.Checked = false;
-            warcraft4ToolStripMenuItem.Checked = false;
-            blueauthserverToolStripMenuItem.Checked = false;
-            redworldserverToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.WoW3;
-            Icon = Resources.WoW3;
-            Settings.Default.iconString = "wow3";
-        }
-
-        private void warcraft4ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (warcraft4ToolStripMenuItem.Checked)
-                return;
-
-            warcraft4ToolStripMenuItem.Checked = true;
-            warcraft1ToolStripMenuItem.Checked = false;
-            warcraft2ToolStripMenuItem.Checked = false;
-            warcraft3ToolStripMenuItem.Checked = false;
-            blueauthserverToolStripMenuItem.Checked = false;
-            redworldserverToolStripMenuItem.Checked = false;
-            StaleLauncherContext._trayIcon.Icon = Resources.WoW4;
-            Icon = Resources.WoW4;
-            Settings.Default.iconString = "wow4";
-
-        }
-
-        //    MISC FILESTRIP CLICK EVENTS
-
-
-        private void launchClientToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            StaleLauncherContext.LaunchClient();
-        }
-
-        private void clearLogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            launcherLog.Invoke(new Action(() => launcherLog.Text = null));
-        }
-
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            About aboutPage = null;
-
-            if (aboutPage == null || aboutPage.IsDisposed)
-            {
-                aboutPage = new About();
-                aboutPage.Show();
-                aboutPage.Activate();
-            }
-            else
-                aboutPage.Dispose();
-        }
-
-        private void Exit(object sender, EventArgs e)
-        {
-            Settings.Default.Save();
-            StaleLauncherContext._trayIcon.Dispose();
-            Application.Exit();
-        }
-
-        private void OnFormExit(object sender, FormClosingEventArgs e)
-        {
-            if (Settings.Default.showTrayIcon)
-            {
-                e.Cancel = true;
-                StaleLauncherContext.serverControlShowing = false;
-                Hide();
-            }
-        }
-
+        //    MISC FILESTRIP CLICK EVENTS        
         private void accountManagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sqlProcess == null)
@@ -559,10 +451,49 @@ namespace staleLauncher
             }
         }
 
-        private void servercontrol_Focus(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (sqlProcess != null)
-                sqlProcess.Activate();
+            if (aboutPage == null || aboutPage.IsDisposed)
+            {
+                aboutPage = new About();
+                aboutPage.Activate();
+            }
+            else
+                aboutPage.Dispose();
+        }
+        
+        private void Exit(object sender, EventArgs e)
+        {
+            Settings.Default.Save();
+            StaleLauncher._trayIcon.Dispose();
+            Application.Exit();
+        }
+
+        private void OnFormExit(object sender, FormClosingEventArgs e)
+        {
+            if (Settings.Default.showTrayIcon)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+        }
+
+        private void WorldConsole_InputTextBox_Enter(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                var consoleInputText = WorldConsole_InputTextBox.Text;
+                WorldConsole_InputTextBox.Text = "";
+
+                if (!Settings.Default.hideProcesses || worldServer == null || worldServer.StartInfo.UseShellExecute)
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                    launcherLogInsert("Console input failed.", eventLogTextBox);
+                    return;                    
+                }
+
+                worldStreamWriter.WriteLineAsync(consoleInputText);
+            }
         }
     }
 }

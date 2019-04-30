@@ -9,18 +9,9 @@ namespace staleLauncher
         [STAThread]
         static void Main()
         {
-
-            Process[] staleProcessGet = Process.GetProcessesByName("stalelauncher");
-
-            if (staleProcessGet.Length > 1)
-            {
-                MessageBox.Show("staleLauncher already running.", "Error");
-                return;
-            }
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new StaleLauncherContext());
+            Application.Run(new StaleLauncher());
         }
     }
 }

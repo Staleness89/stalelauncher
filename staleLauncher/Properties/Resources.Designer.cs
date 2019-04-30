@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace staleLauncher.Properties {
+namespace staleLauncher {
     using System;
     
     
@@ -63,9 +63,9 @@ namespace staleLauncher.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon authServer {
+        internal static System.Drawing.Icon authserver {
             get {
-                object obj = ResourceManager.GetObject("authServer", resourceCulture);
+                object obj = ResourceManager.GetObject("authserver", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -81,21 +81,31 @@ namespace staleLauncher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Bitmap parchment {
+        internal static System.Drawing.Icon mysql {
             get {
-                object obj = ResourceManager.GetObject("parchment", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("mysql", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon worldServer {
+        internal static System.Drawing.Icon mysql_white {
             get {
-                object obj = ResourceManager.GetObject("worldServer", resourceCulture);
+                object obj = ResourceManager.GetObject("mysql_white", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon worldserver {
+            get {
+                object obj = ResourceManager.GetObject("worldserver", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -136,6 +146,16 @@ namespace staleLauncher.Properties {
         internal static System.Drawing.Icon WoW4 {
             get {
                 object obj = ResourceManager.GetObject("WoW4", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon WoW5 {
+            get {
+                object obj = ResourceManager.GetObject("WoW5", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
