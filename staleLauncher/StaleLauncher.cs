@@ -68,13 +68,13 @@ namespace staleLauncher
                     return Resources.worldserver;
                 case "authserver":
                     return Resources.authserver;
-                case "wow1":
+                case "WoW1":
                     return Resources.WoW;
-                case "wow2":
+                case "WoW2":
                     return Resources.WoW2;
-                case "wow3":
+                case "WoW3":
                     return Resources.WoW3;
-                case "wow4":
+                case "WoW4":
                     return Resources.WoW4;
                 default:
                     return Resources.worldserver;
@@ -163,6 +163,9 @@ namespace staleLauncher
                                                     break;
                                                 case "sql_service":
                                                     ServerControl.mySqlServiceName = attr.Value;
+                                                    break;
+                                                case "sql_exe":
+                                                    ServerControl.mySqlExe = attr.Value;
                                                     break;
                                                 case "allow_multiple":
                                                     allowMultipleLaunchers = attr.Value;

@@ -24,6 +24,7 @@ namespace staleLauncher
         SqlConnectForm sqlConnectForm;
         ServiceController mySqlController = new ServiceController();
         public static string mySqlServiceName = "";
+        public static string mySqlExe = "mysqld";
         public static Form sqlProcess = null;
         About aboutPage = null;
 
@@ -81,10 +82,10 @@ namespace staleLauncher
 
 
             worldServer = GetServerProcess(worldExe);
-            if (worldServer != null) { worldServer.EnableRaisingEvents = true; worldServer.Exited += (worldServer, EventArgs) =>
+            if (worldServer != null && worldServer.StartInfo == worldServerStartInfo) { worldServer.EnableRaisingEvents = true; worldServer.Exited += (worldServer, EventArgs) =>
             { serverProcessExit(worldServer, EventArgs, worldExe); }; };
             authServer = GetServerProcess(authExe);
-            if (authServer != null) { authServer.EnableRaisingEvents = true; authServer.Exited += (authServer, EventArgs) =>
+            if (authServer != null && authServer.StartInfo == authServerStartInfo) { authServer.EnableRaisingEvents = true; authServer.Exited += (authServer, EventArgs) =>
             { serverProcessExit(authServer, EventArgs, authExe); }; };
 
             UpdateServerButtons();
@@ -156,19 +157,19 @@ namespace staleLauncher
                     blueauthserverToolStripMenuItem.Checked = true;
                     Icon = Resources.authserver;
                     break;
-                case "wow1":
+                case "WoW1":
                     warcraft1ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW;
                     break;
-                case "wow2":
+                case "WoW2":
                     warcraft2ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW2;
                     break;
-                case "wow3":
+                case "WoW3":
                     warcraft3ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW3;
                     break;
-                case "wow4":
+                case "WoW4":
                     warcraft4ToolStripMenuItem.Checked = true;
                     Icon = Resources.WoW4;
                     break;
@@ -197,8 +198,7 @@ namespace staleLauncher
                 worldServer_toggleButton.Image = Resources.worldserver.ToBitmap();
                 worldServer_toggleButton.BackColor = System.Drawing.Color.Red;
             }
-
-            if (mySqlController.Status == ServiceControllerStatus.Stopped)
+            if (GetServerProcess(mySqlExe) == null)
             {
                 MySql_ToggleButton.BackColor = System.Drawing.Color.Silver;
                 MySql_ToggleButton.Image = Resources.mysql_white.ToBitmap();
@@ -256,24 +256,34 @@ namespace staleLauncher
                 if (authServer == null)
                     StartServerExe(authServerStartInfo);
                 else
-                {
                     authServer.Kill();
-                }
             }
             else if (sender == MySql_ToggleButton)
+                ToggleSqlServer();
+            UpdateServerButtons();
+        }
+
+        public void ToggleSqlServer()
+        {
+            try
             {
-                if (mySqlController.Status == ServiceControllerStatus.Running)
+                if (GetServerProcess(mySqlExe) != null)
                 {
                     mySqlController.Stop();
                     mySqlController.WaitForStatus(ServiceControllerStatus.Stopped);
+                    launcherLogInsert(mySqlServiceName + " stopped.", eventLogTextBox);
                 }
                 else
                 {
                     mySqlController.Start();
                     mySqlController.WaitForStatus(ServiceControllerStatus.Running);
+                    launcherLogInsert(mySqlServiceName + " started.", eventLogTextBox);
                 }
             }
-            UpdateServerButtons();
+            catch
+            {
+                MessageBox.Show("Error starting/stopping SQL service. Try running as administrator.", "Error");
+            }
         }
 
         public void StartServerExe(ProcessStartInfo serverStartInfo)
@@ -385,7 +395,7 @@ namespace staleLauncher
                 case "realmlist.wtf":
                     OpenFileOrDirectory(StaleLauncher.clientPath + "\\Data\\" + StaleLauncher.clientLocale + "\\" + "realmlist.wtf");
                     break;
-                case "Launch Client":
+                case "Start client":
                     StaleLauncher.LaunchClient();
                     break;
             }

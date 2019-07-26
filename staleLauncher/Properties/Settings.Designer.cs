@@ -73,7 +73,7 @@ namespace staleLauncher.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("worldserver")]
+        [global::System.Configuration.DefaultSettingValueAttribute("WoW3")]
         public string iconString {
             get {
                 return ((string)(this["iconString"]));
