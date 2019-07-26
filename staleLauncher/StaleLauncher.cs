@@ -120,11 +120,9 @@ namespace staleLauncher
 
             if (processes.Length == 0)
             {
-                if (Properties.Settings.Default.deleteClientCache && Directory.Exists(clientPath + "\\" + "cache"))
-                {
-                    Directory.Delete(clientPath + "\\" + "cache", true);
-                    Directory.Delete(clientPath + "\\" + clientLocale + "\\" + "cache", true);
-                }                    
+                if (Properties.Settings.Default.deleteClientCache) {
+                    if (Directory.Exists(clientPath + "\\" + "cache")) Directory.Delete(clientPath + "\\" + "cache", true);
+                    if (Directory.Exists(clientPath + "\\" + clientLocale + "\\" + "cache")) Directory.Delete(clientPath + "\\" + clientLocale + "\\" + "cache", true); }
 
                 process = Process.Start(_wowClient);
             }

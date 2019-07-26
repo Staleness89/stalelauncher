@@ -4,8 +4,9 @@
     <Settings server_path="D:\World of Warcraft (4.3.4)\$server\Core" /> <!--'Path to your server executables' -->
     <Settings world_exe="Worldserver" /> <!--'Filename of your worldserver executable' -->
     <Settings auth_exe="Authserver" /> <!--'Filename of your authserver executable' -->
-    <Settings bnet_exe="Bnetserver" /> <!--'Filename of your authserver executable' -->
+    <Settings bnet_exe="Bnetserver" /> <!--'Filename of your bnetserver executable' -->
     <Settings sql_service="MySQL" /> <!--'Name of your SQL windows service' -->
+    <Settings sql_exe="mysqld" /> <!--'Name of your SQL process/executable' -->
     <Settings allow_multiple="true" /> <!--'Allow multiple instances of this launcher' -->
   </Server>
   

@@ -305,67 +305,76 @@ namespace staleLauncher
             }
             catch
             {
-                MessageBox.Show("Error starting/stopping SQL service. Try running as administrator.", "Error");
+                MessageBox.Show("Failed starting/stopping SQL service. It may have been started/stopped by another program.", "Error");
+                UpdateServerButtons();
             }
         }
 
         public void StartServerExe(ProcessStartInfo serverStartInfo)
         {
-            if (File.Exists(serverStartInfo.FileName))
-            {   
-                if (Settings.Default.hideProcesses)
+            try
+            {
+                if (File.Exists(serverStartInfo.FileName))
                 {
-                    serverStartInfo.UseShellExecute = false;
-                    serverStartInfo.CreateNoWindow = true;
+                    if (Settings.Default.hideProcesses)
+                    {
+                        serverStartInfo.UseShellExecute = false;
+                        serverStartInfo.CreateNoWindow = true;
+                    }
+                    else
+                    {
+                        serverStartInfo.UseShellExecute = true;
+                        serverStartInfo.CreateNoWindow = false;
+                    }
+
+
+                    if (serverStartInfo == worldServerStartInfo)
+                    {
+                        if (Settings.Default.clearConsoleOnStartup)
+                        {
+                            DBErrorsTextBox.Text = "";
+                            worldConsoleTextBox.Text = "";
+                        }
+
+                        if (Settings.Default.hideProcesses)
+                            serverStartInfo.RedirectStandardOutput = serverStartInfo.RedirectStandardError = serverStartInfo.RedirectStandardInput = true;
+
+                        worldServer = Process.Start(serverStartInfo);
+                        worldServer.EnableRaisingEvents = true;
+                        worldServer.Exited += (worldServer, EventArgs) => { serverProcessExit(worldServer, EventArgs, worldExe); };
+                        launcherLogInsert(worldExe + " started.", eventLogTextBox);
+
+                        if (Settings.Default.hideProcesses)
+                        {
+                            worldConsoleOutputWorker.RunWorkerAsync(worldServer.StandardOutput);
+                            worldConsoleOutputErrorWorker.RunWorkerAsync(worldServer.StandardError);
+                            worldStreamWriter = worldServer.StandardInput;
+                        }
+                    }
+                    else if (serverStartInfo == authServerStartInfo)
+                    {
+                        authServer = Process.Start(serverStartInfo);
+                        launcherLogInsert(authExe + " started.", eventLogTextBox);
+                        authServer.EnableRaisingEvents = true;
+                        authServer.Exited += (authServer, EventArgs) => { serverProcessExit(authServer, EventArgs, authExe); };
+                    }
+                    else if (serverStartInfo == bnetServerStartInfo)
+                    {
+                        bnetServer = Process.Start(serverStartInfo);
+                        launcherLogInsert(bnetExe + " started.", eventLogTextBox);
+                        bnetServer.EnableRaisingEvents = true;
+                        bnetServer.Exited += (bnetServer, EventArgs) => { serverProcessExit(bnetServer, EventArgs, bnetExe); };
+                    }
                 }
                 else
-                {
-                    serverStartInfo.UseShellExecute = true;
-                    serverStartInfo.CreateNoWindow = false;
-                }
-                    
-
-                if (serverStartInfo == worldServerStartInfo)
-                {
-                    if (Settings.Default.clearConsoleOnStartup)
-                    {
-                        DBErrorsTextBox.Text = "";
-                        worldConsoleTextBox.Text = "";
-                    }                        
-
-                    if (Settings.Default.hideProcesses)
-                        serverStartInfo.RedirectStandardOutput = serverStartInfo.RedirectStandardError = serverStartInfo.RedirectStandardInput = true;
-
-                    worldServer = Process.Start(serverStartInfo);
-                    worldServer.EnableRaisingEvents = true;
-                    worldServer.Exited += (worldServer, EventArgs) => { serverProcessExit(worldServer, EventArgs, worldExe); };
-                    launcherLogInsert(worldExe + " started.", eventLogTextBox);
-
-                    if (Settings.Default.hideProcesses)
-                    {
-                        worldConsoleOutputWorker.RunWorkerAsync(worldServer.StandardOutput);
-                        worldConsoleOutputErrorWorker.RunWorkerAsync(worldServer.StandardError);
-                        worldStreamWriter = worldServer.StandardInput;
-                    }                    
-                }
-                else if (serverStartInfo == authServerStartInfo)
-                {
-                    authServer = Process.Start(serverStartInfo);
-                    launcherLogInsert(authExe + " started.", eventLogTextBox);
-                    authServer.EnableRaisingEvents = true;
-                    authServer.Exited += (authServer, EventArgs) => { serverProcessExit(authServer, EventArgs, authExe); };
-                }
-                else if (serverStartInfo == bnetServerStartInfo)
-                {
-                    bnetServer = Process.Start(serverStartInfo);
-                    launcherLogInsert(bnetExe + " started.", eventLogTextBox);
-                    bnetServer.EnableRaisingEvents = true;
-                    bnetServer.Exited += (bnetServer, EventArgs) => { serverProcessExit(bnetServer, EventArgs, bnetExe); };
-                }
+                    MessageBox.Show(serverStartInfo.FileName.ToString() + " not found", "Error");
+                intentionedStop = false; // reset the alarm
             }
-            else
-                MessageBox.Show(serverStartInfo.FileName.ToString() + " not found", "Error");
-            intentionedStop = false; // reset the alarm
+            catch
+            {
+                MessageBox.Show("Failed starting/stopping server executable. It may have been started/stopped by another program.", "Error");
+                UpdateServerButtons();
+            }
         }
 
         public void ToggleTrayIcon(bool enabled)
@@ -423,7 +432,7 @@ namespace staleLauncher
                 case "realmlist.wtf":
                     OpenFileOrDirectory(StaleLauncher.clientPath + "\\Data\\" + StaleLauncher.clientLocale + "\\" + "realmlist.wtf");
                     break;
-                case "Launch Client":
+                case "Start client":
                     StaleLauncher.LaunchClient();
                     break;
             }
